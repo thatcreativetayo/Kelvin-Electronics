@@ -143,9 +143,11 @@ const DIAGNOSTIC = `(() => {
 const jobs = [
   { url: "http://localhost:3000/", width: 390, height: 900, name: "mobile-home" },
   { url: "http://localhost:3000/collections/audio", width: 390, height: 900, name: "mobile-collection" },
+  { url: "http://localhost:3000/collections/gaming", width: 390, height: 900, name: "mobile-gaming" },
   { url: "http://localhost:3000/products/airpods-max", width: 390, height: 900, name: "mobile-pdp" },
   { url: "http://localhost:3000/", width: 1440, height: 1000, name: "desktop-home" },
   { url: "http://localhost:3000/collections/audio", width: 1440, height: 1000, name: "desktop-collection" },
+  { url: "http://localhost:3000/collections/gaming", width: 1440, height: 1000, name: "desktop-gaming" },
   { url: "http://localhost:3000/products/airpods-max", width: 1440, height: 1000, name: "desktop-pdp" },
   { url: "http://localhost:3000/cart", width: 1440, height: 1000, name: "desktop-cart", cart: true },
   { url: "http://localhost:3000/checkout", width: 1440, height: 1000, name: "desktop-checkout", cart: true },
@@ -198,7 +200,10 @@ for (const job of jobs) {
         setTimeout(step, 60);
       } else {
         window.scrollTo(0, 0);
-        setTimeout(resolve, 250);
+        // Give sticky headers and lazy image observers a frame or two to settle
+        // before the full-page capture. Without this the sticky header can be
+        // painted at the last scroll offset in the captured bitmap.
+        setTimeout(resolve, 700);
       }
     };
     step();

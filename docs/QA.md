@@ -41,6 +41,7 @@ The site was served with `pnpm start` and captured at **1440 × 1000** and **390
 | --- | --- | --- | --- |
 | Home | Pass | Pass | Hero, departments, new arrivals, editorial, shortlist, service, footer |
 | Collection (`/collections/audio`) | Pass | Pass | Three products, desktop filter rail, mobile filter sheet, sort toolbar |
+| Collection (`/collections/gaming`) | Pass | Pass | Three products; price association checked in the wide three-column grid |
 | Product (`/products/airpods-max`) | Pass | Pass | Gallery, variant picker, sticky purchase area, specs, related products |
 | Bag with three lines / four units | Pass | Pass | Thumbnails, quantity steppers, removal, subtotal, shipping, summary |
 | Checkout with the same bag | Pass | Pass | Contact, address, payment boundary, order summary, disabled submit |
@@ -50,9 +51,10 @@ The site was served with `pnpm start` and captured at **1440 × 1000** and **390
 
 `document.documentElement.scrollWidth` equalled the viewport width on every captured route at both breakpoints. No horizontal overflow offenders were reported. Images reported `complete: true` and non-zero natural dimensions after the lazy-load priming pass.
 
-The visual review caught and fixed three real layout defects:
+The visual review caught and fixed four real layout defects:
 
 - Product cards were using a flex-column article, which let the image container and text row drift out of alignment in three-column grids. They are now normal block articles; card metadata aligns across a row.
+- A right-aligned price in a wide grid could read as belonging to the next card (the gaming row made this obvious). Prices now sit directly under the product name, so every card reads as one unit.
 - The cart's mobile footer note was cramped into one row. It now stacks below the "Continue shopping" link on narrow screens.
 - The credits table forced a 760 px horizontal scroll on a 390 px screen. Mobile now uses a stacked attribution list; the table remains at desktop widths.
 

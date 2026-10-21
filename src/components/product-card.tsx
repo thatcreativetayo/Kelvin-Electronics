@@ -57,16 +57,14 @@ export function ProductCard({
         )}
       </div>
 
-      <div className="mt-3 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="type-micro text-muted">{product.brand}</p>
-          <h3 className="mt-1 text-[15px] font-medium leading-snug tracking-[-0.015em]">
-            <Link href={`/products/${product.slug}`} className="transition-colors hover:text-accent">
-              {product.name}
-            </Link>
-          </h3>
-        </div>
-        <p className="num shrink-0 pt-4 text-[15px]">
+      <div className="mt-3">
+        <p className="type-micro text-muted">{product.brand}</p>
+        <h3 className="mt-1 text-[15px] font-medium leading-snug tracking-[-0.015em]">
+          <Link href={`/products/${product.slug}`} className="transition-colors hover:text-accent">
+            {product.name}
+          </Link>
+        </h3>
+        <p className="num mt-1 text-[14px] text-ink-2">
           {variable && <span className="mr-1 text-xs text-muted">from</span>}
           {formatPrice(from)}
         </p>

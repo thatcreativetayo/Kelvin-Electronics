@@ -1,0 +1,398 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/*  KELVIN — design tokens                                             */
+/*  Warm bone canvas · near-black ink · one electric ultramarine       */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  --color-canvas: #f2f1ec;
+  --color-paper: #fbfaf7;
+  --color-white: #ffffff;
+  --color-ink: #0b0c0d;
+  --color-ink-2: #3c3e40;
+  --color-muted: #74767a;
+  --color-faint: #9c9e9f;
+  --color-line: #dedcd4;
+  --color-line-strong: #c8c5ba;
+  --color-accent: #1e3aff;
+  --color-accent-soft: #e8ebff;
+  --color-success: #2c6a4a;
+  --color-warn: #8a5a12;
+  --color-danger: #a12b1e;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+
+  --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-ui: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root {
+  --shell: 1440px;
+  --gutter: 20px;
+  --header-h: 68px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+    --header-h: 76px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --gutter: 48px;
+  }
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  font-feature-settings: "ss01" on, "cv05" on;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Layout                                                             */
+/* ------------------------------------------------------------------ */
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.shell-wide {
+  width: 100%;
+  max-width: 1760px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Type scale — size, weight and leading are decided as a set         */
+/* ------------------------------------------------------------------ */
+
+.type-display {
+  font-size: clamp(2.75rem, 7.4vw, 7.5rem);
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.type-h1 {
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.038em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.type-h2 {
+  font-size: clamp(1.875rem, 3.4vw, 3.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.type-h3 {
+  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  line-height: 1.25;
+  letter-spacing: -0.018em;
+  font-weight: 550;
+}
+
+.type-lead {
+  font-size: clamp(1.0625rem, 1.35vw, 1.25rem);
+  line-height: 1.55;
+  letter-spacing: -0.008em;
+  color: var(--color-ink-2);
+}
+
+.type-body {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.type-small {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.type-micro {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: 450;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" on;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Product imagery                                                    */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Product photography is pre-staged on white. `multiply` lets that white
+ * disappear into the bone canvas, so products sit directly on the page
+ * instead of inside a card. No panel, no border, no shadow.
+ */
+.product-media {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+.product-media img {
+  mix-blend-mode: multiply;
+  transition: transform 700ms var(--ease-out-quint);
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .group:hover .product-media img {
+    transform: scale(1.035);
+  }
+}
+
+/* The gallery keeps a very soft plate so the image has an edge on mobile. */
+.product-media-hero {
+  background: radial-gradient(120% 100% at 50% 40%, #fbfaf7 0%, #f4f2ec 70%, #f0eee7 100%);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Controls                                                           */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  --btn-bg: var(--color-ink);
+  --btn-fg: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 48px;
+  padding-inline: 1.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  border: 1px solid transparent;
+  transition:
+    background-color 150ms var(--ease-ui),
+    color 150ms var(--ease-ui),
+    border-color 150ms var(--ease-ui),
+    transform 150ms var(--ease-ui);
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn:not(:disabled):active {
+  transform: scale(0.985);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-accent {
+  --btn-bg: var(--color-accent);
+}
+
+.btn-outline {
+  --btn-bg: transparent;
+  --btn-fg: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    --btn-bg: #1c1d1f;
+  }
+  .btn-accent:hover:not(:disabled) {
+    --btn-bg: #1630da;
+  }
+  .btn-outline:hover:not(:disabled) {
+    --btn-bg: var(--color-ink);
+    --btn-fg: #fff;
+  }
+}
+
+.btn-sm {
+  height: 38px;
+  font-size: 0.8125rem;
+  padding-inline: 0.9rem;
+}
+
+.field {
+  height: 46px;
+  width: 100%;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-paper);
+  padding-inline: 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  transition: border-color 150ms var(--ease-ui), background-color 150ms var(--ease-ui);
+}
+
+.field::placeholder {
+  color: var(--color-faint);
+}
+
+.field:focus {
+  border-color: var(--color-ink);
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgb(30 58 255 / 0.15);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Motion                                                             */
+/* ------------------------------------------------------------------ */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise 700ms var(--ease-out-quint) both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawerIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes scrimIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Accessibility                                                      */
+/* ------------------------------------------------------------------ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  background: var(--color-ink);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  transition: top 150ms var(--ease-ui);
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .product-media img {
+    transition: none !important;
+  }
+}

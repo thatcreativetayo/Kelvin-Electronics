@@ -1,0 +1,47 @@
+✓ Lockfile passes supply-chain policies (verified 2h ago)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+Done in 4.5s using pnpm v11.8.0
+$ next dev --port 3000
+▲ Next.js 16.4.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.174:3000
+✓ Ready in 2.2s
+✓ Running next.config.ts took 139ms
+- Experiments (use with caution):
+  · optimizePackageImports
+
+✓ Generated AGENTS.md for AI agents. Set `agentRules: false` in next.config to disable.
+○ Compiling / ...
+ GET / 200 in 2.7s (next.js: 1289ms, application-code: 1415ms)
+[browser] Image with src "/products/airpods-max.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 534ms (next.js: 4ms, application-code: 531ms)
+ GET / 200 in 591ms (next.js: 4ms, application-code: 587ms)
+[browser] Image with src "/products/airpods-max.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+✓ Compiled in 439ms
+✓ Compiled in 200ms
+ GET / 200 in 395ms (next.js: 17ms, application-code: 378ms)
+ GET / 200 in 427ms (next.js: 9ms, application-code: 418ms)
+✓ Compiled in 273ms
+ GET / 200 in 818ms (next.js: 5ms, application-code: 814ms)
+ GET / 200 in 621ms (next.js: 13ms, application-code: 608ms)
+✓ Compiled in 179ms
+ GET / 200 in 661ms (next.js: 8ms, application-code: 652ms)
+ GET / 200 in 270ms (next.js: 8ms, application-code: 263ms)
+✓ Compiled in 187ms
+ GET / 200 in 366ms (next.js: 13ms, application-code: 353ms)
+ GET / 200 in 493ms (next.js: 9ms, application-code: 484ms)
+ GET / 200 in 785ms (next.js: 7ms, application-code: 778ms)
+[browser] Image with src "/products/airpods-max.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET /search?q=yo 200 in 285ms (next.js: 87ms, application-code: 198ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /products/steam-deck 200 in 2.7s (next.js: 74ms, generate-params: 2.4s, application-code: 161ms)
+ GET /?v=2 200 in 324ms (next.js: 3ms, application-code: 321ms)
+ GET /?v=2 200 in 321ms (next.js: 3ms, application-code: 318ms)
+ GET /?v=2 200 in 335ms (next.js: 4ms, application-code: 331ms)
+[browser] Image with src "/products/airpods-max.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading

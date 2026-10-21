@@ -1,0 +1,7 @@
+# pnpm 11 reads build-script approvals here rather than from package.json.
+onlyBuiltDependencies:
+  - sharp
+  - "@tailwindcss/oxide"
+  - esbuild
+  - unrs-resolver
+  - "@parcel/watcher"

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
-import { collections } from "@/data/collections";
 import { filterProducts } from "@/lib/catalog";
+import { getCatalog } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Search",
@@ -17,18 +17,22 @@ export default async function SearchPage({
 }) {
   const params = await searchParams;
   const q = (Array.isArray(params.q) ? params.q[0] : params.q)?.trim() ?? "";
+  const { products: catalogProducts, collections } = await getCatalog();
 
   const result = q
-    ? filterProducts({
-        brands: [],
-        priceBands: [],
-        inStockOnly: false,
-        facets: {},
-        q,
-        sort: "featured",
-        page: 1,
-        perPage: 48,
-      })
+    ? filterProducts(
+        {
+          brands: [],
+          priceBands: [],
+          inStockOnly: false,
+          facets: {},
+          q,
+          sort: "featured",
+          page: 1,
+          perPage: 48,
+        },
+        catalogProducts,
+      )
     : null;
 
   return (

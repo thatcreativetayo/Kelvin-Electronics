@@ -19,7 +19,7 @@ export function ProductCard({
   const variable = new Set(product.variants.map((v) => v.price)).size > 1;
 
   return (
-    <article className={cn("group relative flex flex-col", className)}>
+    <article className={cn("group relative", className)}>
       <div className="product-media relative aspect-square">
         <Link
           href={`/products/${product.slug}`}

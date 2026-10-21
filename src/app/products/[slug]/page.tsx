@@ -5,12 +5,14 @@ import { ArrowUpRight, ChevronRight, ShieldCheck, Truck, Undo2 } from "lucide-re
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
-import { productBySlug, products } from "@/data/products";
-import { collectionBySlug } from "@/data/collections";
+import { products } from "@/data/products";
 import { isAvailable, priceOf, relatedProducts } from "@/lib/catalog";
+import { getCatalog } from "@/lib/content";
 import { formatPrice } from "@/lib/format";
 
 type PageProps = { params: Promise<{ slug: string }> };
+
+export const revalidate = 300;
 
 export function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
@@ -18,7 +20,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = productBySlug(slug);
+  const { products: catalogProducts } = await getCatalog();
+  const product = catalogProducts.find((item) => item.slug === slug);
   if (!product) return { title: "Product not found" };
   return {
     title: product.name,
@@ -33,14 +36,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = productBySlug(slug);
+  const { products: catalogProducts, collections } = await getCatalog();
+  const product = catalogProducts.find((item) => item.slug === slug);
   if (!product) notFound();
 
-  const collection = collectionBySlug(product.collection);
+  const collection = collections.find((item) => item.slug === product.collection);
   const available = isAvailable(product);
   const lowest = priceOf(product);
   const highest = Math.max(...product.variants.map((variant) => variant.price));
-  const related = relatedProducts(product);
+  const related = relatedProducts(product, 4, catalogProducts);
 
   return (
     <div className="shell pt-6 pb-20 md:pt-8 md:pb-24">

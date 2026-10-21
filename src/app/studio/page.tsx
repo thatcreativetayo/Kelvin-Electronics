@@ -4,7 +4,7 @@ import { ArrowUpRight, Check, Minus } from "lucide-react";
 import { integrations, sanityEnv, cloudinaryEnv } from "@/lib/env";
 
 export const metadata: Metadata = {
-  title: "Store admin",
+  title: "Integration status",
   description: "Sanity Studio, Supabase and Cloudinary status for this build.",
   robots: { index: false, follow: false },
 };
@@ -36,10 +36,9 @@ const rows = [
   },
   {
     label: "Payment provider",
-    ready: Boolean(process.env.PAYMENT_PROVIDER_SECRET_KEY),
-    detail: Boolean(process.env.PAYMENT_PROVIDER_SECRET_KEY)
-      ? "A provider secret is present. Card capture is started after the order is written."
-      : "Checkout stops at order intent. No card details are collected and no charge is made.",
+    ready: false,
+    detail:
+      "Not connected. Checkout records an order and reserves stock, but no card is collected and no charge is made in this build.",
     vars: ["PAYMENT_PROVIDER_SECRET_KEY"],
   },
 ];
@@ -80,8 +79,8 @@ export default function StudioPage() {
             {[
               {
                 title: "Install the studio",
-                body: "From the repository root: pnpm --dir studio install. The studio is intentionally a separate package with its own dependencies.",
-                code: "pnpm --dir studio install",
+                body: "The studio is intentionally a separate package with its own dependencies. Run the install from inside studio/.",
+                code: "cd studio\npnpm install",
               },
               {
                 title: "Create a Sanity project",
@@ -91,12 +90,12 @@ export default function StudioPage() {
               {
                 title: "Start the studio",
                 body: "Runs on port 3333. Sign in with the Sanity account that owns the project; editors are invited from the project dashboard.",
-                code: "pnpm --dir studio dev",
+                code: "cd studio\npnpm dev",
               },
               {
                 title: "Deploy when ready",
                 body: "The studio deploys independently of the storefront. Set NEXT_PUBLIC_SANITY_STUDIO_URL to the deployed origin so the footer link points at it.",
-                code: "pnpm --dir studio deploy",
+                code: "cd studio\npnpm deploy",
               },
             ].map((step, index) => (
               <li key={step.title} className="grid grid-cols-[28px_1fr] gap-3">

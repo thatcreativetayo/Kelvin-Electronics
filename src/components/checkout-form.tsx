@@ -211,11 +211,11 @@ export function CheckoutForm({ configured, requirements, supabaseReady }: Props)
                 <Lock size={16} strokeWidth={1.6} className="mt-0.5 shrink-0 text-muted" />
                 <div>
                   <p className="text-sm font-medium">
-                    {configured ? "Payment provider connected" : "Payment is not connected in this build"}
+                    {configured ? "Order capture connected. Card payment is not." : "Payment is not connected in this build"}
                   </p>
                   <p className="mt-1 text-xs leading-relaxed text-muted">
                     {configured
-                      ? "Submitting records a real order and reserves stock. Card capture is handled by the payment provider configured through PAYMENT_PROVIDER_SECRET_KEY."
+                      ? "Submitting writes a real order and reserves stock in Supabase. No card is collected or charged: payment capture is still a boundary, not a demo."
                       : "No card details are collected and no charge is made. The storefront stops at order intent; this is the integration boundary, not a demo payment."}
                   </p>
                 </div>
@@ -254,7 +254,7 @@ export function CheckoutForm({ configured, requirements, supabaseReady }: Props)
               className="btn btn-accent flex-1"
               aria-describedby={configured ? undefined : "checkout-boundary"}
             >
-              {status === "submitting" ? "Recording order…" : configured ? `Place order — ${formatPrice(total)}` : "Payment not connected"}
+              {status === "submitting" ? "Recording order…" : configured ? `Record order — ${formatPrice(total)}` : "Payment not connected"}
             </button>
             <button type="button" onClick={copySummary} className="btn btn-outline">
               {copied ? <Check size={15} /> : <Copy size={15} />}
@@ -313,8 +313,8 @@ export function CheckoutForm({ configured, requirements, supabaseReady }: Props)
             </dl>
 
             <p className="mt-4 text-[11px] leading-relaxed text-muted">
-              Prices are in USD and include VAT where applicable. Stock is re-checked server-side before an order
-              is written.
+              Prices are in USD. Tax is not calculated in this build. Stock is re-checked server-side before an
+              order is written.
             </p>
           </div>
         </aside>

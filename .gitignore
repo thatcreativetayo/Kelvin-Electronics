@@ -6,6 +6,20 @@ out
 next-env.d.ts
 .env
 .env.local
+.env.*.local
 .vercel
 studio/.sanity
 studio/dist
+studio/.env
+studio/.env.local
+
+# Local design + QA artifacts (not part of the product)
+.shots
+dev.log
+prod.log
+build.log
+build.err.log
+prod.err.log
+public/_candidates
+public/_candidates2
+public/products/cut/

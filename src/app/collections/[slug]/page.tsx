@@ -5,12 +5,15 @@ import { ChevronRight } from "lucide-react";
 import { CollectionControls } from "@/components/collection-controls";
 import { Pagination } from "@/components/pagination";
 import { ProductCard } from "@/components/product-card";
-import { getCollection, getCollections, brandsFor, facetsFor, filterProducts, parseQuery, priceBands } from "@/lib/catalog";
+import { getCollections, brandsFor, facetsFor, filterProducts, parseQuery, priceBands } from "@/lib/catalog";
+import { getCatalog } from "@/lib/content";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export const revalidate = 300;
 
 export function generateStaticParams() {
   return [...getCollections().map((collection) => ({ slug: collection.slug })), { slug: "all" }];
@@ -18,7 +21,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const collection = getCollection(slug);
+  const { collections } = await getCatalog();
+  const collection = collections.find((item) => item.slug === slug);
   if (slug !== "all" && !collection) return { title: "Collection not found" };
   return {
     title: collection ? collection.name : "All products",
@@ -29,16 +33,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CollectionPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const raw = await searchParams;
-  const collection = getCollection(slug);
+  const { products: catalogProducts, collections } = await getCatalog();
+  const collection = collections.find((item) => item.slug === slug);
 
   if (slug !== "all" && !collection) notFound();
 
   const query = parseQuery(raw);
   if (collection) query.collection = collection.slug;
 
-  const result = filterProducts(query);
-  const facets = facetsFor(collection?.slug);
-  const brands = brandsFor(collection?.slug);
+  const result = filterProducts(query, catalogProducts);
+  const facets = facetsFor(collection?.slug, catalogProducts);
+  const brands = brandsFor(collection?.slug, catalogProducts);
   const basePath = `/collections/${slug}`;
 
   const flatParams = Object.fromEntries(
@@ -78,30 +83,30 @@ export default async function CollectionPage({ params, searchParams }: PageProps
           brands={brands}
           total={result.total}
           priceBands={priceBands}
-        />
+        >
+          {result.items.length === 0 ? (
+            <div className="mt-10 border border-line bg-paper px-6 py-16 text-center">
+              <p className="type-micro text-muted">No matches</p>
+              <h2 className="mt-3 text-xl font-medium tracking-[-0.02em]">Nothing fits those filters.</h2>
+              <p className="mx-auto mt-2 max-w-[44ch] text-sm text-muted">
+                Try widening the price range or clearing a brand. Everything we stock is listed here — there is
+                no hidden inventory.
+              </p>
+              <Link href={basePath} className="btn btn-sm mt-6">
+                Clear filters
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-3 lg:gap-y-12">
+              {result.items.map((product, index) => (
+                <ProductCard key={product.id} product={product} priority={index < 3} />
+              ))}
+            </div>
+          )}
+
+          <Pagination basePath={basePath} params={flatParams} page={result.page} pageCount={result.pageCount} />
+        </CollectionControls>
       </div>
-
-      {result.items.length === 0 ? (
-        <div className="mt-10 border border-line bg-paper px-6 py-16 text-center">
-          <p className="type-micro text-muted">No matches</p>
-          <h2 className="mt-3 text-xl font-medium tracking-[-0.02em]">Nothing fits those filters.</h2>
-          <p className="mx-auto mt-2 max-w-[44ch] text-sm text-muted">
-            Try widening the price range or clearing a brand. Everything we stock is listed here — there is no
-            hidden inventory.
-          </p>
-          <Link href={basePath} className="btn btn-sm mt-6">
-            Clear filters
-          </Link>
-        </div>
-      ) : (
-        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-3 lg:gap-y-12">
-          {result.items.map((product, index) => (
-            <ProductCard key={product.id} product={product} priority={index < 3} />
-          ))}
-        </div>
-      )}
-
-      <Pagination basePath={basePath} params={flatParams} page={result.page} pageCount={result.pageCount} />
     </div>
   );
 }

@@ -118,7 +118,7 @@ export default function CartPage() {
               ))}
             </ul>
 
-            <div className="mt-6 flex items-center justify-between">
+            <div className="mt-6 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
               <Link href="/collections/all" className="type-micro inline-flex items-center gap-1.5 text-muted hover:text-ink">
                 Continue shopping
                 <ArrowUpRight size={12} strokeWidth={1.75} />
@@ -156,7 +156,7 @@ export default function CartPage() {
                 <ArrowRight size={15} />
               </Link>
               <p className="mt-3 text-center text-[11px] leading-relaxed text-muted">
-                Taxes calculated at checkout. Card payment is not connected in this build.
+                Taxes are not calculated in this build.
               </p>
             </div>
           </aside>

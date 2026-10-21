@@ -29,13 +29,45 @@ export default function CreditsPage() {
         <h1 className="type-h1 mt-3">Image credits</h1>
         <p className="mt-5 text-sm leading-relaxed text-ink-2">
           Product photography is sourced from Wikimedia Commons under the licences listed below. Images have been
-          cropped, trimmed and placed on a uniform white stage; no product has been retouched in a way that changes
+          cropped and placed on a transparent 1200 × 1200 canvas; no product has been retouched in a way that changes
           its appearance. Product names and trademarks belong to their respective owners, who are not affiliated
           with KELVIN.
         </p>
       </header>
 
-      <div className="mt-8 overflow-x-auto">
+      <ul className="mt-2 border-t border-line md:hidden">
+        {(credits as Credit[]).map((credit) => {
+          const product = bySlug.get(credit.slug);
+          return (
+            <li key={credit.slug} className="border-b border-line py-5">
+              <div className="flex items-baseline justify-between gap-4">
+                <p className="text-sm">
+                  {product ? (
+                    <Link href={`/products/${product.slug}`} className="hover:text-accent">
+                      {product.name}
+                    </Link>
+                  ) : (
+                    credit.slug
+                  )}
+                </p>
+                <p className="type-micro shrink-0 text-muted">{credit.license}</p>
+              </div>
+              <a
+                href={credit.page}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="mt-3 inline-flex items-start gap-1.5 text-sm leading-snug text-ink-2 hover:text-accent"
+              >
+                {credit.title.replace(/^File:/, "")}
+                <ArrowUpRight size={12} strokeWidth={1.75} className="mt-1 shrink-0" />
+              </a>
+              <p className="mt-1.5 text-xs text-muted">{credit.artist}</p>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="mt-8 hidden overflow-x-auto md:block">
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead>
             <tr className="border-b border-line">

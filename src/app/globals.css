@@ -185,9 +185,7 @@ body {
 }
 
 .product-media img {
-  mix-blend-mode: multiply;
   transition: transform 700ms var(--ease-out-quint);
-  will-change: transform;
 }
 
 @media (hover: hover) {
@@ -196,9 +194,10 @@ body {
   }
 }
 
-/* The gallery keeps a very soft plate so the image has an edge on mobile. */
+/* The gallery keeps the same empty stage as the cards: the transparent
+   product cutout is the only thing sitting on the canvas. */
 .product-media-hero {
-  background: radial-gradient(120% 100% at 50% 40%, #fbfaf7 0%, #f4f2ec 70%, #f0eee7 100%);
+  background: transparent;
 }
 
 /* ------------------------------------------------------------------ */
@@ -235,8 +234,11 @@ body {
 }
 
 .btn:disabled {
-  opacity: 0.45;
+  opacity: 1;
   cursor: not-allowed;
+  background: var(--color-line);
+  color: var(--color-muted);
+  border-color: var(--color-line);
 }
 
 .btn-accent {

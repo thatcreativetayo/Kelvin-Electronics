@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { collections } from "@/data/collections";
+import { sanityEnv } from "@/lib/env";
 
 const year = new Date().getFullYear();
+const hasExternalStudio = /^https?:\/\//.test(sanityEnv.studioUrl);
 
 export function SiteFooter() {
   return (
@@ -59,8 +61,8 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link href="/studio" className="text-sm text-ink-2 transition-colors hover:text-accent">
-                Store admin
+              <Link href={sanityEnv.studioUrl} className="text-sm text-ink-2 transition-colors hover:text-accent">
+                {hasExternalStudio ? "Open studio" : "Studio status"}
               </Link>
             </li>
           </ul>

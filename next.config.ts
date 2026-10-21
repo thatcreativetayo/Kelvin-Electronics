@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [360, 480, 640, 828, 1080, 1280, 1600, 1920],
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/products/**", search: "?v=2" },
+      { pathname: "/products/**", search: "?v=3" },
+    ],
     remotePatterns: [
       {
         protocol: "https",

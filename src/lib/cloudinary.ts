@@ -49,7 +49,7 @@ export function signUpload(): SignedUpload | null {
  */
 export function imageUrl(publicId: string | undefined, fallback: string, width = 1400): string {
   if (!publicId || !cloudinaryEnv.cloudName) return fallback;
-  return `https://res.cloudinary.com/${cloudinaryEnv.cloudName}/image/upload/f_auto,q_auto,w_${width}/v1/${publicId}`;
+  return `https://res.cloudinary.com/${cloudinaryEnv.cloudName}/image/upload/f_auto,q_auto,w_${width}/${publicId}`;
 }
 
 export function isCloudinaryConfigured(): boolean {

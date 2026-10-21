@@ -2,17 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
-import { collections } from "@/data/collections";
-import { productBySlug, products } from "@/data/products";
+import { getCatalog } from "@/lib/content";
 import { formatPrice, pluralize } from "@/lib/format";
 
-const hero = productBySlug("airpods-max")!;
-const newArrivals = ["airpods-pro", "kindle-paperwhite", "fujifilm-x-t5", "steam-deck"]
-  .map((slug) => productBySlug(slug))
-  .filter(Boolean) as typeof products;
-const shortlist = ["macbook-air", "iphone-15-pro", "sony-a7r-iv", "nintendo-switch-oled"]
-  .map((slug) => productBySlug(slug))
-  .filter(Boolean) as typeof products;
+export const revalidate = 300;
 
 const services = [
   {
@@ -32,7 +25,18 @@ const services = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { products: catalogProducts, collections: departments } = await getCatalog();
+
+  const hero = catalogProducts.find((product) => product.slug === "airpods-max") ?? catalogProducts[0]!;
+  const pick = (slugs: string[]) =>
+    slugs
+      .map((slug) => catalogProducts.find((product) => product.slug === slug))
+      .filter((product): product is (typeof catalogProducts)[number] => Boolean(product));
+
+  const newArrivals = pick(["airpods-pro", "kindle-paperwhite", "fujifilm-x-t5", "steam-deck"]);
+  const shortlist = pick(["macbook-air", "iphone-15-pro", "sony-a7r-iv", "nintendo-switch-oled"]);
+
   return (
     <>
       {/* Hero */}
@@ -72,8 +76,13 @@ export default function HomePage() {
               />
             </div>
             <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
-              <p className="type-micro text-muted">01 — {hero.name} / Silver</p>
-              <p className="type-micro text-ink">{formatPrice(54900)}</p>
+              <p className="type-micro text-muted">
+                01 — {hero.name}
+                {Object.values(hero.variants[0].options).length
+                  ? ` / ${Object.values(hero.variants[0].options).join(" / ")}`
+                  : ""}
+              </p>
+              <p className="type-micro text-ink">{formatPrice(hero.variants[0].price)}</p>
             </div>
           </div>
         </div>
@@ -89,13 +98,13 @@ export default function HomePage() {
             href="/collections/all"
             className="type-micro inline-flex items-center gap-1.5 text-muted transition-colors hover:text-ink"
           >
-            {pluralize(products.length, "product")}
+            {pluralize(catalogProducts.length, "product")}
             <ArrowUpRight size={12} strokeWidth={1.75} />
           </Link>
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-5">
-          {collections.map((collection) => (
+          {departments.map((collection) => (
             <Link key={collection.slug} href={`/collections/${collection.slug}`} className="group">
               <div className="product-media relative aspect-square">
                 <Image
@@ -162,7 +171,7 @@ export default function HomePage() {
               {[
                 { value: "02 yr", label: "Warranty" },
                 { value: "30 day", label: "Returns" },
-                { value: "14", label: "Products" },
+                { value: String(catalogProducts.length), label: "Products" },
               ].map((stat) => (
                 <div key={stat.label}>
                   <p className="num text-2xl tracking-[-0.03em]">{stat.value}</p>
@@ -176,11 +185,11 @@ export default function HomePage() {
             <figure className="w-full max-w-[440px]">
               <div className="relative aspect-square bg-[#f4f2ec]">
                 <Image
-                  src="/products/sony-a7r-iv.jpg"
+                  src="/products/sony-a7r-iv.png"
                   alt="Sony Alpha 7R IV with its sensor exposed, front view"
                   fill
                   sizes="(max-width: 1024px) 100vw, 440px"
-                  className="object-contain p-[3%] mix-blend-multiply"
+                  className="object-contain p-[3%]"
                 />
                 <span className="absolute left-3 top-3 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-2">
                   Plate 04

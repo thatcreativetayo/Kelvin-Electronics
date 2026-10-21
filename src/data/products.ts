@@ -1,10 +1,10 @@
 import type { Product } from "@/lib/types";
 
 const img = (slug: string, alt: string) => ({
-  src: `/products/${slug}.jpg`,
+  src: `/products/${slug}.png?v=3`,
   alt,
-  width: 1400,
-  height: 1400,
+  width: 1200,
+  height: 1200,
 });
 
 export const products: Product[] = [
@@ -70,7 +70,7 @@ export const products: Product[] = [
       { label: "Water resistance", value: "IP54" },
       { label: "In the box", value: "Buds, case, four tip sizes" },
     ],
-    images: [img("airpods-pro", "AirPods Pro with charging case")],
+    images: [img("airpods-pro", "AirPods Pro in an open charging case")],
     variants: [
       { id: "airpods-pro--white", sku: "APP-WHT", options: { colour: "White" }, price: 24900, stock: 18 },
     ],
@@ -252,7 +252,7 @@ export const products: Product[] = [
       { label: "Port", value: "USB-C (USB 3)" },
       { label: "Water resistance", value: "IP68" },
     ],
-    images: [img("iphone-15-pro", "iPhone 15 Pro in natural titanium and blue titanium")],
+    images: [img("iphone-15-pro", "iPhone 15 Pro, front view")],
     variants: [
       { id: "iphone-15-pro--128-natural", sku: "IP15P-128-NAT", options: { storage: "128 GB", colour: "Natural Titanium" }, price: 99900, stock: 5 },
       { id: "iphone-15-pro--256-natural", sku: "IP15P-256-NAT", options: { storage: "256 GB", colour: "Natural Titanium" }, price: 109900, stock: 4 },
@@ -436,7 +436,7 @@ export const products: Product[] = [
       { label: "Weight", value: "420 g with Joy-Con" },
       { label: "Dock", value: "Included, wired LAN" },
     ],
-    images: [img("nintendo-switch-oled", "Nintendo Switch OLED in white, docked")],
+    images: [img("nintendo-switch-oled", "Nintendo Switch OLED with dock")],
     variants: [
       { id: "nintendo-switch-oled--white", sku: "NSW-OLED-WHT", options: { colour: "White" }, price: 34900, stock: 8 },
       { id: "nintendo-switch-oled--neon", sku: "NSW-OLED-NEO", options: { colour: "Neon" }, price: 34900, stock: 0 },

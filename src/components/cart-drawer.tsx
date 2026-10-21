@@ -129,8 +129,8 @@ export function CartDrawer() {
                 <span className="num text-lg">{formatPrice(subtotal)}</span>
               </div>
               <p className="mt-2 text-xs leading-relaxed text-muted">
-                Shipping and tax are calculated at checkout. Orders ship from our Lagos warehouse in 1–2 business
-                days.
+                Complimentary delivery over $150. Orders ship from our Lagos warehouse in 1-2 business days. Taxes
+                are not calculated in this build.
               </p>
               <Link href="/checkout" onClick={closeCart} className="btn btn-accent mt-4 w-full">
                 Checkout

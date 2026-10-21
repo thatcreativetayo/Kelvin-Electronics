@@ -15,6 +15,7 @@ type Props = {
   brands: string[];
   total: number;
   priceBands: readonly { id: string; label: string }[];
+  children: React.ReactNode;
 };
 
 const readList = (params: Record<string, string>, key: string) =>
@@ -23,7 +24,7 @@ const readList = (params: Record<string, string>, key: string) =>
     .map((value) => decodeURIComponent(value.trim()))
     .filter(Boolean);
 
-export function CollectionControls({ basePath, params, facets, brands, total, priceBands }: Props) {
+export function CollectionControls({ basePath, params, facets, brands, total, priceBands, children }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -257,6 +258,8 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
         <div className="sr-only" aria-live="polite">
           {pluralize(total, "product")} shown, sorted by {sortLabel}
         </div>
+
+        {children}
       </div>
 
       {open && (

@@ -43,8 +43,8 @@ export const defaultVariant = (product: Product): Variant | undefined =>
   product.variants.find((v) => v.stock > 0) ?? product.variants[0];
 
 /** Facets are derived from the products in a collection — no duplicated taxonomy. */
-export function facetsFor(collectionSlug?: CollectionSlug) {
-  const scope = collectionSlug ? products.filter((p) => p.collection === collectionSlug) : products;
+export function facetsFor(collectionSlug?: CollectionSlug, source: Product[] = products) {
+  const scope = collectionSlug ? source.filter((p) => p.collection === collectionSlug) : source;
   const keys = new Set<string>();
   scope.forEach((p) => Object.keys(p.filters).forEach((k) => keys.add(k)));
 
@@ -61,8 +61,8 @@ export function facetsFor(collectionSlug?: CollectionSlug) {
   });
 }
 
-export function brandsFor(collectionSlug?: CollectionSlug) {
-  const scope = collectionSlug ? products.filter((p) => p.collection === collectionSlug) : products;
+export function brandsFor(collectionSlug?: CollectionSlug, source: Product[] = products) {
+  const scope = collectionSlug ? source.filter((p) => p.collection === collectionSlug) : source;
   return [...new Set(scope.map((p) => p.brand))].sort();
 }
 
@@ -75,10 +75,10 @@ function matchesPrice(product: Product, bands: string[]): boolean {
   });
 }
 
-export function filterProducts(query: CatalogQuery) {
+export function filterProducts(query: CatalogQuery, source: Product[] = products) {
   const q = query.q?.trim().toLowerCase();
 
-  const filtered = products.filter((product) => {
+  const filtered = source.filter((product) => {
     if (query.collection && product.collection !== query.collection) return false;
     if (query.brands.length && !query.brands.includes(product.brand)) return false;
     if (!matchesPrice(product, query.priceBands)) return false;
@@ -173,8 +173,8 @@ export function countActiveFilters(query: CatalogQuery): number {
   );
 }
 
-export function relatedProducts(product: Product, limit = 4): Product[] {
-  return products
+export function relatedProducts(product: Product, limit = 4, source: Product[] = products): Product[] {
+  return source
     .filter((p) => p.id !== product.id)
     .sort((a, b) => {
       const score = (p: Product) =>

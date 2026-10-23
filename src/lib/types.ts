@@ -1,4 +1,5 @@
-export type CollectionSlug = "audio" | "computing" | "mobile" | "imaging" | "gaming";
+/** Collection slugs come from content, not a fixed code list. */
+export type CollectionSlug = string;
 
 export type Collection = {
   slug: CollectionSlug;
@@ -13,8 +14,9 @@ export type Variant = {
   /** Stable identifier shared with Supabase inventory rows. */
   id: string;
   sku: string;
-  /** Option values, e.g. { colour: "Silver", storage: "512GB" } */
+  /** Option values, e.g. { colour: "Sand", size: "M" } */
   options: Record<string, string>;
+  /** Price in kobo (NGN minor units). */
   price: number;
   stock: number;
 };
@@ -48,6 +50,20 @@ export type Product = {
   releasedAt: string;
 };
 
+export type SortKey = "featured" | "price-asc" | "price-desc" | "newest" | "name";
+
+export type CatalogQuery = {
+  brands: string[];
+  priceBands: string[];
+  inStockOnly: boolean;
+  facets: Record<string, string[]>;
+  sort: SortKey;
+  q?: string;
+  page: number;
+  perPage: number;
+  collection?: CollectionSlug;
+};
+
 export type CartLine = {
   variantId: string;
   productSlug: string;
@@ -60,18 +76,4 @@ export type CartLineResolved = {
   variant: Variant;
   quantity: number;
   lineTotal: number;
-};
-
-export type SortKey = "featured" | "price-asc" | "price-desc" | "newest" | "name";
-
-export type CatalogQuery = {
-  collection?: CollectionSlug;
-  brands: string[];
-  priceBands: string[];
-  inStockOnly: boolean;
-  facets: Record<string, string[]>;
-  q?: string;
-  sort: SortKey;
-  page: number;
-  perPage: number;
 };

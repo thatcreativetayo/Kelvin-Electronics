@@ -20,7 +20,7 @@ export const collection = defineType({
       name: "eyebrow",
       title: "Eyebrow",
       type: "string",
-      description: "e.g. 01 / Audio",
+      description: "e.g. 01 / Lighting",
       validation: (rule) => rule.max(32),
     }),
     defineField({
@@ -40,14 +40,32 @@ export const collection = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "tone",
+      title: "Colour block",
+      type: "string",
+      description: "Background behind the collection image and product stages.",
+      options: {
+        list: [
+          { title: "Sky", value: "#dbe7f6" },
+          { title: "Butter", value: "#f0e3b5" },
+          { title: "Clay", value: "#f0dbcd" },
+          { title: "Sage", value: "#dde6d6" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "#dbe7f6",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "position",
       type: "number",
-      description: "Order in the navigation and homepage departments rail.",
+      description: "Order in the navigation and homepage category grid.",
       validation: (rule) => rule.required().integer().min(1),
     }),
     defineField({
       name: "showInNavigation",
-      title: "Show in header navigation",
+      title: "Show in navigation",
+      description: "Prepared for a future navigation adapter. The current header is code-driven.",
       type: "boolean",
       initialValue: true,
     }),

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<defs>
+  <filter id="floor" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="26"/>
+  </filter>
+  <filter id="lift" x="-40%" y="-40%" width="180%" height="200%">
+    <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#101318" flood-opacity="0.16"/>
+  </filter>
+  <filter id="lift-soft" x="-40%" y="-40%" width="180%" height="200%">
+    <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#101318" flood-opacity="0.12"/>
+  </filter>
+  <linearGradient id="paper" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#fcfaf4"/>
+    <stop offset="0.56" stop-color="#efe9dd"/>
+    <stop offset="1" stop-color="#dcd3c4"/>
+  </linearGradient>
+  <linearGradient id="paper-side" x1="0" y1="0" x2="1" y2="0.5">
+    <stop offset="0" stop-color="#cfc5b5"/>
+    <stop offset="1" stop-color="#aaa092"/>
+  </linearGradient>
+  <linearGradient id="ink" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#3b4047"/>
+    <stop offset="0.55" stop-color="#1a1d21"/>
+    <stop offset="1" stop-color="#0c0e10"/>
+  </linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#8f897e"/>
+    <stop offset="0.18" stop-color="#f1ede5"/>
+    <stop offset="0.46" stop-color="#b7b0a3"/>
+    <stop offset="0.72" stop-color="#ece7dd"/>
+    <stop offset="1" stop-color="#8b857a"/>
+  </linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#4561ff"/>
+    <stop offset="1" stop-color="#1732d8"/>
+  </linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#f3f8ff"/>
+    <stop offset="0.55" stop-color="#dbe8fb"/>
+    <stop offset="1" stop-color="#bdcee8"/>
+  </linearGradient>
+  <linearGradient id="sand" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#eee1c9"/>
+    <stop offset="0.6" stop-color="#ddcdb2"/>
+    <stop offset="1" stop-color="#c5b393"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0.1" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#fffef9" stop-opacity="0.98"/>
+    <stop offset="0.5" stop-color="#f4efe4" stop-opacity="0.94"/>
+    <stop offset="1" stop-color="#cfc6b6" stop-opacity="0.9"/>
+  </linearGradient>
+  <radialGradient id="warm-glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffd889" stop-opacity="0.55"/>
+    <stop offset="0.5" stop-color="#ffd889" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#ffd889" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="white-glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="fade-down" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe1a0" stop-opacity="0.5"/>
+    <stop offset="1" stop-color="#ffe1a0" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="cloth" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#f8f5ee"/>
+    <stop offset="0.6" stop-color="#e9e3d7"/>
+    <stop offset="1" stop-color="#d5ccbd"/>
+  </linearGradient>
+  <linearGradient id="hood" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#e5d8c2"/>
+    <stop offset="0.6" stop-color="#d3c2a8"/>
+    <stop offset="1" stop-color="#b9a789"/>
+  </linearGradient>
+  <linearGradient id="canvas" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#efe6d2"/>
+    <stop offset="0.6" stop-color="#e0d2b8"/>
+    <stop offset="1" stop-color="#c8b796"/>
+  </linearGradient>
+</defs>
+    <ellipse cx="600" cy="952" rx="300" ry="40" fill="#111418" opacity="0.11" filter="url(#floor)"/>
+    <g filter="url(#lift)">
+      <path d="M310 392H890C916 392 938 414 938 440V864C938 890 916 912 890 912H310C284 912 262 890 262 864V440C262 414 284 392 310 392Z" fill="url(#paper-side)"/>
+      <rect x="262" y="360" width="676" height="520" rx="58" fill="url(#paper)" stroke="#cfc4b2" stroke-width="3"/>
+      <rect x="298" y="396" width="604" height="130" rx="34" fill="#fbf8f1" stroke="#e1d8c9" stroke-width="2"/>
+      <rect x="326" y="420" width="244" height="82" rx="18" fill="url(#ink)"/>
+      <text x="350" y="464" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="1.5" fill="#6d9cff">180°C</text>
+      <text x="350" y="488" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="2" fill="#9aa8bf">AIR · 24 MIN</text>
+      <circle cx="738" cy="460" r="38" fill="#fbf8f1" stroke="#cfc4b2" stroke-width="3"/>
+      <circle cx="738" cy="460" r="23" fill="url(#ink)"/>
+      <path d="M738 436V450" stroke="#6d9cff" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="850" cy="430" r="9" fill="url(#blue)"/>
+      <rect x="298" y="556" width="604" height="288" rx="32" fill="#f5f0e6" stroke="#d8cebe" stroke-width="3"/>
+      <rect x="326" y="586" width="548" height="196" rx="24" fill="#2b3036"/>
+      <rect x="350" y="610" width="500" height="148" rx="16" fill="#1b1e22"/>
+      <path d="M470 664H700" stroke="#51575d" stroke-width="3" stroke-linecap="round"/>
+      <path d="M500 686H670" stroke="#51575d" stroke-width="3" stroke-linecap="round"/>
+      <rect x="488" y="728" width="224" height="34" rx="17" fill="#3e444b"/>
+      <rect x="512" y="736" width="176" height="8" rx="4" fill="#8d959e" opacity="0.55"/>
+      <text x="600" y="668" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="2" fill="#6a7178">CLOUD AIR 4</text>
+      <path d="M372 900H392M808 900H828" stroke="#24282d" stroke-width="14" stroke-linecap="round"/>
+    </g></svg>

@@ -5,10 +5,10 @@ import type { CatalogQuery, Collection, CollectionSlug, Product, SortKey, Varian
 export const PER_PAGE = 12;
 
 export const priceBands = [
-  { id: "under-250", label: "Under $250", min: 0, max: 25000 },
-  { id: "250-750", label: "$250 – $750", min: 25000, max: 75000 },
-  { id: "750-1500", label: "$750 – $1,500", min: 75000, max: 150000 },
-  { id: "over-1500", label: "$1,500 and up", min: 150000, max: Number.MAX_SAFE_INTEGER },
+  { id: "under-25k", label: "Under ₦25,000", min: 0, max: 2500000 },
+  { id: "25-50k", label: "₦25,000 – ₦50,000", min: 2500000, max: 5000000 },
+  { id: "50-100k", label: "₦50,000 – ₦100,000", min: 5000000, max: 10000000 },
+  { id: "over-100k", label: "₦100,000 and up", min: 10000000, max: Number.MAX_SAFE_INTEGER },
 ] as const;
 
 export const sortOptions: { value: SortKey; label: string }[] = [
@@ -21,7 +21,8 @@ export const sortOptions: { value: SortKey; label: string }[] = [
 
 const facetLabels: Record<string, string> = {
   type: "Type",
-  connectivity: "Connectivity",
+  room: "Room",
+  fit: "Fit",
 };
 
 export const getCollection = (slug: string): Collection | undefined => collectionBySlug(slug);
@@ -146,11 +147,12 @@ export function parseQuery(params: Record<string, string | string[] | undefined>
   const sort = sortOptions.some((o) => o.value === sortRaw) ? (sortRaw as SortKey) : "featured";
 
   const facets: Record<string, string[]> = {};
-  const known = ["type", "connectivity"];
-  known.forEach((key) => {
-    const values = read(`f_${key}`);
-    if (values.length) facets[key] = values;
-  });
+  Object.keys(params)
+    .filter((key) => key.startsWith("f_"))
+    .forEach((key) => {
+      const values = read(key);
+      if (values.length) facets[key.slice(2)] = values;
+    });
 
   return {
     brands: read("brand"),

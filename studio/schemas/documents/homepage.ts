@@ -16,7 +16,7 @@ export const homepage = defineType({
       title: "Sections",
       type: "array",
       description:
-        "Drag to reorder. Each section is rendered by the storefront in this order; empty sections are skipped.",
+        "Prepared for a future content pass. The current storefront composes its homepage in code and reads products and collections only, so changes here are not live yet.",
       of: [
         defineArrayMember({ type: "heroSection" }),
         defineArrayMember({ type: "productRailSection" }),

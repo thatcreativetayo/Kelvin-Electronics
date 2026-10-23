@@ -1,112 +1,125 @@
-# QA
+# QA runbook
 
-Last pass: 21 October 2026, Windows 11, Node 24.10.0, pnpm 11.8.0, Chrome headless.
+Last pass: **22 October 2026**, Windows 11, Node 24.10.0, pnpm 11.8.0, Chrome headless.
 
-This document records what was exercised in this build. It is deliberately narrower than a test plan: there is no automated test suite yet, and the hosted integrations have not been connected.
+This records what was actually exercised. The storefront has a browser smoke test and a seed check, but no unit, integration, or hosted-service tests. The hosted integrations have not been connected.
 
 ## Automated checks
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Storefront production build | `pnpm build` | Pass — 31 routes generated |
 | Storefront TypeScript | `pnpm typecheck` | Pass |
-| Studio install | `cd studio && pnpm install` | Pass |
-| Studio TypeScript | `pnpm --dir studio typecheck` | Pass |
-| Studio production build | `pnpm --dir studio build` | Pass |
+| Storefront production build | `pnpm build` | Pass — 31 pages generated, 12 product paths prerendered |
+| Seed ↔ catalogue comparison | `pnpm seed:check` | Pass — 27 variants, 27 seed rows, IDs, SKUs and stock match |
+| Browser commerce smoke test | `node tools/smoke.mjs` | Pass — 7 checks |
+| Studio TypeScript | `cd studio && pnpm typecheck` | Pass |
+| Studio production build | `cd studio && pnpm build` | Pass |
+| Visual capture and overflow scan | `node tools/capture-storefront.mjs …` | Pass — 10 routes at 1440 and 390, no horizontal overflow |
 
-The route table from the final build:
+Build route summary:
 
 ```text
-○ /                    5m
-○ /_not-found
-ƒ /api/checkout
-ƒ /api/cloudinary/sign
-ƒ /api/stock
-○ /cart
-○ /checkout
-ƒ /collections/[slug]
-○ /credits
-● /products/[slug]     (14 prerendered paths)
-ƒ /search
-○ /studio
+/                         static, revalidated
+/_not-found               static
+/api/checkout             dynamic
+/api/cloudinary/sign      dynamic
+/api/stock                dynamic
+/apple-icon.png           static
+/cart                     static
+/checkout                 static
+/collections/[slug]       dynamic
+/credits                  static
+/how-it-works             static
+/icon.svg                 static
+/products/[slug]          12 prerendered paths
+/search                   dynamic
+/studio                   static
 ```
 
-There are no unit, integration or end-to-end tests. `pnpm typecheck` covers the storefront; the Studio has its own typecheck because it is a separate package.
+## Commerce smoke test
 
-## Browser and visual checks
-
-The site was served with `pnpm start` and captured at **1440 × 1000** and **390 × 900** using `tools/shot.mjs` (Chrome DevTools Protocol). Every capture waited for fonts, images and the route's main content, then checked document width and image decode state.
-
-| Surface | 1440 | 390 | Notes |
-| --- | --- | --- | --- |
-| Home | Pass | Pass | Hero, departments, new arrivals, editorial, shortlist, service, footer |
-| Collection (`/collections/audio`) | Pass | Pass | Three products, desktop filter rail, mobile filter sheet, sort toolbar |
-| Collection (`/collections/gaming`) | Pass | Pass | Three products; price association checked in the wide three-column grid |
-| Product (`/products/airpods-max`) | Pass | Pass | Gallery, variant picker, sticky purchase area, specs, related products |
-| Bag with three lines / four units | Pass | Pass | Thumbnails, quantity steppers, removal, subtotal, shipping, summary |
-| Checkout with the same bag | Pass | Pass | Contact, address, payment boundary, order summary, disabled submit |
-| Search (`/search?q=airpods`) | Pass | — | Two results, query echo, empty-query state covered by route code |
-| Empty search (`/search?q=zzzz`) | Pass | — | Honest no-results state |
-| Credits | Pass | Pass | Responsive list on mobile; table on desktop |
-
-`document.documentElement.scrollWidth` equalled the viewport width on every captured route at both breakpoints. No horizontal overflow offenders were reported. Images reported `complete: true` and non-zero natural dimensions after the lazy-load priming pass.
-
-The visual review caught and fixed four real layout defects:
-
-- Product cards were using a flex-column article, which let the image container and text row drift out of alignment in three-column grids. They are now normal block articles; card metadata aligns across a row.
-- A right-aligned price in a wide grid could read as belonging to the next card (the gaming row made this obvious). Prices now sit directly under the product name, so every card reads as one unit.
-- The cart's mobile footer note was cramped into one row. It now stacks below the "Continue shopping" link on narrow screens.
-- The credits table forced a 760 px horizontal scroll on a 390 px screen. Mobile now uses a stacked attribution list; the table remains at desktop widths.
-
-Product photography was also normalised during this pass. All 14 catalog images are transparent PNG cutouts on the bone canvas; `mix-blend-mode` and photo plates were removed. The iPad, Kindle, iPhone and Switch required manual crops because rembg either merged a group shot or erased light devices. The AirPods Pro source was replaced with an open-case studio shot and its credit was updated.
-
-### Not visually verified
-
-- Safari and Firefox. The headless pass used Chromium only.
-- Real iOS/Android devices, touch scrolling and virtual-keyboard behaviour.
-- The full footer below 5200 px on mobile; the screenshot tool caps capture height. The footer was inspected at desktop and partially at mobile.
-- Hover, focus-visible and reduced-motion states beyond code review.
-
-## Commerce behaviour
-
-`node tools/smoke.mjs` drives a real Chromium session against the production server and passed these checks on the final build:
+`node tools/smoke.mjs` drives Chromium over the DevTools protocol against `http://localhost:3000`.
 
 | Check | Observed |
 | --- | --- |
-| Add to bag on `/products/airpods-pro` | One line persisted: `airpods-pro--white` × 1 |
-| Increase quantity in `/cart` | Quantity persisted as 2; subtotal followed to `$498` |
-| Remove the line | `localStorage` emptied and the empty-bag state rendered |
-| Checkout with no integrations | Submit disabled, labelled `Payment not connected` |
-| `POST /api/checkout` with no variables | `501 integration_not_configured`, listing the missing variables |
+| Add to bag on `/products/halo-smart-bulb` | `halo-smart-bulb--single`, quantity 1, persisted under `cloud.cart.v1` |
+| Increase quantity on `/cart` | Quantity 2 persisted |
+| Subtotal follows quantity | `₦37,000` |
+| Remove the line | Bag cleared and empty-bag state rendered |
+| Unconfigured checkout | Primary button disabled, label `Payment not connected` |
+| `POST /api/checkout` unconfigured | `501 integration_not_configured`; lists Supabase and payment variables |
+| Non-Nigerian delivery address | `400 invalid_order`, “Cloud currently delivers within Nigeria only.” |
 
-The larger screenshot bag of `airpods-max--silver` (1), `kindle-paperwhite--16` (2) and `dualsense--white` (1) rendered four units and a **$921** subtotal; shipping is complimentary above $150. The cart is local-first and persists to `localStorage` under `kelvin.cart.v1`.
+The API tests run against the same unconfigured process. No order row was written and no charge was attempted.
 
-Checkout validates required contact/address fields client-side and re-validates and re-prices on the server. The `/studio` status board reports payment as unavailable by construction, even when the order-capture gate is set.
+## Visual and responsive checks
+
+Captured with `tools/capture-storefront.mjs` at **1440 px** and **390 px**:
+
+| Surface | 1440 | 390 | Notes |
+| --- | --- | --- | --- |
+| Home | Pass | Pass | Hero, category blocks, new-in row, Cloud Home edit, Cloud Wear, import story |
+| All products | Pass | Pass | Full catalogue grid, filters and sort toolbar |
+| Lighting collection | Pass | Pass | Three products, desktop filters, mobile filter sheet |
+| Wear collection | Pass | Pass | Three products, fit filters |
+| Halo bulb product | Pass | Pass | Gallery, variant picker, price range, stock, specs, related products |
+| Search `light` | Pass | Pass | Query echo and matching products |
+| Cart with two lines | Pass | Pass | Thumbnail, quantity controls, delivery progress, summary |
+| Checkout with two lines | Pass | Pass | Contact, delivery, payment boundary, order review |
+| How Cloud works | Pass | Pass | Sourcing, customs, delivery, returns, warranty commitments |
+| Credits | Pass | Pass | Original renders and font licences; stacked mobile layout |
+
+`document.documentElement.scrollWidth` equalled the viewport width on every route at both breakpoints. No overflow offenders were reported. The capture script grows the emulated viewport instead of using Chrome's `captureBeyondViewport` stitching, which previously produced repeated-content artifacts on long pages.
+
+The seeded cart used for populated cart/checkout captures is `halo-smart-bulb--single` × 1 and `kettle-one--cream` × 1, for a `₦60,500` subtotal. Shipping is `₦4,500`, because the bag is below the `₦150,000` free-delivery threshold. The drawer and cart confirm the same total.
+
+The review covered the hero, catalogue tiles, product cards, PDP purchase area, cart drawer, cart page, checkout form and footer at both widths. Empty bag, empty checkout and no-result search states were also inspected.
+
+### Not visually verified
+
+- Safari and Firefox. The browser pass used Chromium only.
+- Real iOS or Android devices, touch scrolling, and virtual-keyboard behaviour.
+- Hover, focus-visible, and reduced-motion states beyond code review.
+- Very large or very small text settings and third-party browser translation.
+
+## Seed and image checks
+
+`pnpm seed:check` parses `src/data/products.ts` and `supabase/seed.sql` and checks:
+
+- Exactly 27 variants in both places.
+- Every variant ID is present in the seed.
+- SKUs match.
+- Seed stock matches.
+- No extra seed rows.
+
+All 12 product illustrations are committed as local PNG and SVG files under `public/products/`. The browser captures loaded the hero bulb, Arc floor lamp, category images and related-product images with non-zero natural dimensions. The `next/image` loader is configured for local paths without query strings.
 
 ## Integration status
 
 | Integration | Status | What was verified |
 | --- | --- | --- |
-| Sanity content | Not connected | Schemas, Studio structure and custom components typecheck; Studio builds. No real project/dataset was queried. |
-| Cloudinary | Not connected | Signing route and Studio field typecheck. No asset was uploaded; no credentials exist in the repo. |
-| Supabase | Not applied | SQL migrations and seed were reviewed; they could not be executed because Docker, the Supabase CLI and `psql` are unavailable in this environment. |
-| Payments | Not implemented | No provider adapter, no card fields, no charge. This is intentional. |
+| Sanity | Not connected | Schemas, Studio structure and custom components typecheck; Studio production build passes. No real project or dataset was queried. |
+| Cloudinary | Not connected | Signing route and Studio image field typecheck. No upload was performed; no credentials exist in the repository. |
+| Supabase | Not applied | SQL migrations and seed were reviewed. They could not be executed because Docker, the Supabase CLI and `psql` are unavailable here. |
+| Payments | Not implemented | No provider adapter, card fields, charge, webhook, or confirmation email. Intentional. |
 
-The storefront therefore runs on the seed catalog, which is the intended demo state. The build does not require any environment variable.
+The storefront therefore runs on the seed catalogue. No environment variables are required for the build, local cart, search, filters, or the disabled checkout boundary.
 
 ## Reproduce
 
-```bash
+```powershell
 pnpm install
+pnpm typecheck
+pnpm seed:check
 pnpm build
-pnpm start
-node tools/shot.mjs .shots
+pnpm dev
 node tools/smoke.mjs
+$env:SEED_CART="1"; node tools/capture-storefront.mjs / /collections/all /collections/lighting /collections/wear /products/halo-smart-bulb /search?q=light /cart /checkout /how-it-works /credits
 ```
 
-`tools/shot.mjs` writes desktop and mobile PNGs plus a JSON diagnostic block per route to `.shots/`. The directory is ignored by git. To exercise the bag without clicking through the UI, the script seeds the same three-line cart in `localStorage` before capturing `/cart` and `/checkout`.
+On macOS/Linux, use `SEED_CART=1 node tools/capture-storefront.mjs …`. Screenshots go to `%TEMP%\cloud-shots` on Windows or `SHOT_DIR`. The smoke test expects the dev server on port 3000; it does not start one itself.
 
-For Studio checks:
+Studio:
 
 ```bash
 cd studio
@@ -115,4 +128,17 @@ pnpm typecheck
 pnpm build
 ```
 
-Do not treat this document as evidence that the Supabase migrations run. They need a disposable Postgres/Supabase environment and a fresh `supabase db reset` before order capture is enabled.
+## Before release
+
+- [ ] Implement and test a Nigerian payment adapter, webhook verification, idempotency, and confirmation email.
+- [ ] Apply the migrations and seed to a disposable Supabase project; run `supabase db reset` from empty.
+- [ ] Exercise `create_order` for success, insufficient stock, duplicate variant, unknown variant, and rollback.
+- [ ] Verify the order number and kobo totals in the database after a real test checkout.
+- [ ] Add reservation expiry and a release job for abandoned payments.
+- [ ] Replace placeholder contact details and final domain.
+- [ ] Confirm delivery, returns, warranty, and customs language with the operating team.
+- [ ] Connect Sanity and Cloudinary; publish at least one product through each and verify the storefront mapping.
+- [ ] Run a privacy, security, and rate-limit review of `/api/checkout` and `/api/cloudinary/sign`.
+- [ ] Re-run this document on the target Node version and against the production URL.
+
+Do not treat this document as evidence that the Supabase SQL runs or that payment is safe to enable. Both require a fresh environment and a real provider test.

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
@@ -26,7 +27,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (slug !== "all" && !collection) return { title: "Collection not found" };
   return {
     title: collection ? collection.name : "All products",
-    description: collection?.description ?? "The complete KELVIN catalog of audio, computing, mobile, imaging and gaming products.",
+    description:
+      collection?.description ??
+      "Every Cloud product currently in stock: electronics, home essentials and the Cloud Wear capsule.",
   };
 }
 
@@ -53,29 +56,72 @@ export default async function CollectionPage({ params, searchParams }: PageProps
   );
 
   return (
-    <div className="shell pt-6 pb-20 md:pt-8 md:pb-24">
+    <div className="shell pb-20 pt-5 md:pb-24 md:pt-7">
       <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-muted">
-        <Link href="/" className="transition-colors hover:text-ink">
+        <Link href="/" className="transition-colors duration-150 hover:text-ink">
           Home
         </Link>
-        <ChevronRight size={12} strokeWidth={1.75} className="text-faint" />
+        <ChevronRight size={12} strokeWidth={1.8} />
         <span className="text-ink">{collection ? collection.name : "All products"}</span>
       </nav>
 
-      <header className="mt-8 grid gap-6 border-b border-line pb-10 md:grid-cols-12 md:items-end md:gap-8">
-        <div className="md:col-span-7">
-          <p className="type-micro text-muted">{collection?.eyebrow ?? "Catalog / All"}</p>
+      <header className="mt-7 flex flex-col justify-between gap-8 border-b border-border pb-8 sm:pb-10 lg:flex-row lg:items-end">
+        <div className="max-w-[680px]">
+          <p className="type-eyebrow">{collection?.eyebrow ?? "The catalogue"}</p>
           <h1 className="type-h1 mt-3">{collection?.name ?? "All products"}</h1>
-        </div>
-        <div className="md:col-span-5">
-          <p className="max-w-[46ch] text-sm leading-relaxed text-ink-2">
+          <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-muted">
             {collection?.description ??
-              "Every product we currently stock, across five departments. Filter by brand, price, type or availability."}
+              "Every product we currently stock, across electronics, home and everyday wear. Filter by type, room, fit, price or availability."}
           </p>
         </div>
+
+        {collection && (
+          <div className="relative hidden aspect-square w-[180px] shrink-0 overflow-hidden rounded-2xl border border-border bg-bg lg:block xl:w-[210px]">
+            <span
+              aria-hidden
+              className="absolute left-1/2 top-1/2 aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface"
+            />
+            <Image
+              src={collection.image}
+              alt={`${collection.name} collection`}
+              fill
+              priority
+              sizes="210px"
+              className="object-contain p-5"
+            />
+          </div>
+        )}
       </header>
 
-      <div className="mt-8">
+      <nav aria-label="Categories" className="mt-5 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <Link
+          href="/collections/all"
+          aria-current={slug === "all" ? "page" : undefined}
+          className={
+            slug === "all"
+              ? "shrink-0 rounded-full border border-ink bg-ink px-3.5 py-1.5 text-xs font-medium text-surface"
+              : "shrink-0 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted transition-colors duration-150 hover:border-ink hover:text-ink"
+          }
+        >
+          All products
+        </Link>
+        {collections.map((item) => (
+          <Link
+            key={item.slug}
+            href={`/collections/${item.slug}`}
+            aria-current={slug === item.slug ? "page" : undefined}
+            className={
+              slug === item.slug
+                ? "shrink-0 rounded-full border border-ink bg-ink px-3.5 py-1.5 text-xs font-medium text-surface"
+                : "shrink-0 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted transition-colors duration-150 hover:border-ink hover:text-ink"
+            }
+          >
+            {item.name}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="mt-7">
         <CollectionControls
           basePath={basePath}
           params={flatParams}
@@ -85,19 +131,23 @@ export default async function CollectionPage({ params, searchParams }: PageProps
           priceBands={priceBands}
         >
           {result.items.length === 0 ? (
-            <div className="mt-10 border border-line bg-paper px-6 py-16 text-center">
-              <p className="type-micro text-muted">No matches</p>
-              <h2 className="mt-3 text-xl font-medium tracking-[-0.02em]">Nothing fits those filters.</h2>
-              <p className="mx-auto mt-2 max-w-[44ch] text-sm text-muted">
-                Try widening the price range or clearing a brand. Everything we stock is listed here — there is
+            <div className="card mt-8 px-6 py-16 text-center">
+              <p className="type-eyebrow">No matches</p>
+              <h2 className="type-h3 mt-3">Nothing fits those filters.</h2>
+              <p className="mx-auto mt-2 max-w-[44ch] text-sm leading-relaxed text-muted">
+                Try widening the price range or clearing a filter. Everything we stock is listed here - there is
                 no hidden inventory.
               </p>
-              <Link href={basePath} className="btn btn-sm mt-6">
+              <Link href={basePath} className="btn mt-6">
                 Clear filters
               </Link>
             </div>
           ) : (
-            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-3 lg:gap-y-12">
+            <div
+              className={`mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 lg:gap-y-5 ${
+                result.items.length > 3 ? "xl:grid-cols-4" : ""
+              }`}
+            >
               {result.items.map((product, index) => (
                 <ProductCard key={product.id} product={product} priority={index < 3} />
               ))}

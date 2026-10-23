@@ -1,124 +1,165 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import credits from "@/data/image-credits.json";
-import { products } from "@/data/products";
+import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Image credits",
-  description: "Photography credits and licences for the KELVIN catalog.",
+  title: "Credits",
+  description: "Photography, typeface and software credits for the Cloud storefront.",
 };
 
-type Credit = (typeof credits)[number];
+const fonts = [
+  {
+    name: "Poppins",
+    role: "Interface, headings and commerce type",
+    license: "SIL Open Font License 1.1",
+    href: "/licenses/Poppins-OFL.txt",
+  },
+];
+
+const photographs = [
+  { asset: "Halo smart bulb", source: "Pexels", id: "20713462", href: "https://www.pexels.com/photo/20713462/" },
+  { asset: "Arc floor lamp", source: "Vecteezy", id: "50038322", href: "https://www.vecteezy.com/photo/50038322" },
+  { asset: "Line light strip", source: "Pexels", id: "34195903", href: "https://www.pexels.com/photo/34195903/" },
+  { asset: "Plug mini", source: "Vecteezy", id: "59981040", href: "https://www.vecteezy.com/photo/59981040" },
+  { asset: "Current 4-way strip", source: "Pexels", id: "39234197", href: "https://www.pexels.com/photo/39234197/" },
+  { asset: "Orbit power cube", source: "Pexels", id: "35921904", href: "https://www.pexels.com/photo/35921904/" },
+  { asset: "Kettle one", source: "Vecteezy", id: "50631875", href: "https://www.vecteezy.com/photo/50631875" },
+  { asset: "Air four", source: "Vecteezy", id: "44813044", href: "https://www.vecteezy.com/photo/44813044" },
+  { asset: "Blend mini", source: "Vecteezy", id: "51495767", href: "https://www.vecteezy.com/photo/51495767" },
+  { asset: "Everyday tee", source: "Vecteezy", id: "50631973", href: "https://www.vecteezy.com/photo/50631973" },
+  { asset: "Cloud hoodie", source: "Vecteezy", id: "48773958", href: "https://www.vecteezy.com/photo/48773958" },
+  { asset: "Day tote", source: "Vecteezy", id: "66523849", href: "https://www.vecteezy.com/photo/66523849" },
+];
 
 export default function CreditsPage() {
-  const bySlug = new Map(products.map((product) => [product.slug, product]));
-
   return (
-    <div className="shell pt-8 pb-20 md:pt-10 md:pb-24">
+    <div className="shell pt-5 pb-20 md:pt-7 md:pb-24">
       <nav aria-label="Breadcrumb" className="text-xs text-muted">
-        <Link href="/" className="hover:text-ink">
+        <Link href="/" className="transition-colors duration-150 hover:text-ink">
           Home
         </Link>
-        <span className="mx-1.5 text-faint">/</span>
-        <span className="text-ink">Image credits</span>
+        <span className="mx-1.5 text-border">/</span>
+        <span className="text-ink">Credits</span>
       </nav>
 
-      <header className="mt-8 max-w-[70ch] border-b border-line pb-8">
-        <p className="type-micro text-muted">Attribution</p>
-        <h1 className="type-h1 mt-3">Image credits</h1>
-        <p className="mt-5 text-sm leading-relaxed text-ink-2">
-          Product photography is sourced from Wikimedia Commons under the licences listed below. Images have been
-          cropped and placed on a transparent 1200 × 1200 canvas; no product has been retouched in a way that changes
-          its appearance. Product names and trademarks belong to their respective owners, who are not affiliated
-          with KELVIN.
+      <header className="card mt-6 max-w-[860px] p-6 sm:p-8">
+        <p className="type-eyebrow">Credits</p>
+        <h1 className="type-h1 mt-2">Made for this store.</h1>
+        <p className="mt-4 max-w-[62ch] text-sm leading-relaxed text-muted">
+          Product photography is licensed from Vecteezy and Pexels. Backgrounds were removed and images were
+          colour-corrected for this storefront. Product names and specifications are Cloud catalogue content.
         </p>
       </header>
 
-      <ul className="mt-2 border-t border-line md:hidden">
-        {(credits as Credit[]).map((credit) => {
-          const product = bySlug.get(credit.slug);
-          return (
-            <li key={credit.slug} className="border-b border-line py-5">
-              <div className="flex items-baseline justify-between gap-4">
-                <p className="text-sm">
-                  {product ? (
-                    <Link href={`/products/${product.slug}`} className="hover:text-accent">
-                      {product.name}
-                    </Link>
-                  ) : (
-                    credit.slug
-                  )}
-                </p>
-                <p className="type-micro shrink-0 text-muted">{credit.license}</p>
-              </div>
-              <a
-                href={credit.page}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="mt-3 inline-flex items-start gap-1.5 text-sm leading-snug text-ink-2 hover:text-accent"
-              >
-                {credit.title.replace(/^File:/, "")}
-                <ArrowUpRight size={12} strokeWidth={1.75} className="mt-1 shrink-0" />
-              </a>
-              <p className="mt-1.5 text-xs text-muted">{credit.artist}</p>
-            </li>
-          );
-        })}
-      </ul>
+      <section className="mt-10 grid gap-8 border-b border-border pb-10 md:grid-cols-12" aria-labelledby="photography">
+        <div className="md:col-span-4">
+          <p className="type-eyebrow">01 / Photography</p>
+          <h2 id="photography" className="type-h3 mt-3">
+            Licensed product images
+          </h2>
+        </div>
+        <div className="md:col-span-8">
+          <ul className="divide-y divide-border border-y border-border">
+            {photographs.map((photo) => (
+              <li key={photo.asset} className="flex flex-wrap items-baseline justify-between gap-2 py-3.5">
+                <span className="text-sm font-medium">{photo.asset}</span>
+                <a
+                  href={photo.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted transition-colors duration-150 hover:text-ink"
+                >
+                  {photo.source} / {photo.id}
+                  <ArrowUpRight size={11} strokeWidth={1.9} />
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 max-w-[62ch] text-xs leading-relaxed text-muted">
+            Images are illustrative. Finish and small details on the units that ship may differ. Background removal
+            was done in-house; no stock watermark is present in the delivered assets.
+          </p>
+        </div>
+      </section>
 
-      <div className="mt-8 hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[760px] border-collapse text-left">
-          <thead>
-            <tr className="border-b border-line">
-              <th className="type-micro py-3 pr-4 font-normal text-muted">Product</th>
-              <th className="type-micro py-3 pr-4 font-normal text-muted">Photograph</th>
-              <th className="type-micro py-3 pr-4 font-normal text-muted">Photographer</th>
-              <th className="type-micro py-3 font-normal text-muted">Licence</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(credits as Credit[]).map((credit) => {
-              const product = bySlug.get(credit.slug);
-              return (
-                <tr key={credit.slug} className="border-b border-line align-top">
-                  <td className="py-4 pr-4 text-sm">
-                    {product ? (
-                      <Link href={`/products/${product.slug}`} className="hover:text-accent">
-                        {product.name}
-                      </Link>
-                    ) : (
-                      credit.slug
-                    )}
-                  </td>
-                  <td className="py-4 pr-4 text-sm">
-                    <a
-                      href={credit.page}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="inline-flex items-center gap-1.5 text-ink-2 hover:text-accent"
-                    >
-                      {credit.title.replace(/^File:/, "")}
-                      <ArrowUpRight size={12} strokeWidth={1.75} />
-                    </a>
-                  </td>
-                  <td className="py-4 pr-4 text-sm text-ink-2">{credit.artist}</td>
-                  <td className="py-4 text-sm text-muted">{credit.license}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <section className="mt-10 grid gap-8 border-b border-border pb-10 md:grid-cols-12" aria-labelledby="typefaces">
+        <div className="md:col-span-4">
+          <p className="type-eyebrow">02 / Typeface</p>
+          <h2 id="typefaces" className="type-h3 mt-3">
+            Self-hosted, openly licensed
+          </h2>
+        </div>
+        <div className="md:col-span-8">
+          <ul className="divide-y divide-border border-y border-border">
+            {fonts.map((font) => (
+              <li key={font.name} className="flex flex-wrap items-baseline justify-between gap-3 py-4">
+                <div>
+                  <p className="text-[15px] font-medium">{font.name}</p>
+                  <p className="mt-1 text-xs text-muted">{font.role}</p>
+                </div>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-muted">{font.license}</span>
+                  <a
+                    href={font.href}
+                    className="inline-flex items-center gap-1.5 underline decoration-border underline-offset-4 transition-colors duration-150 hover:text-ink"
+                  >
+                    Licence text
+                    <ArrowUpRight size={11} strokeWidth={1.9} />
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs leading-relaxed text-muted">
+            Poppins is self-hosted from <code className="font-mono text-[11px]">src/app/fonts</code>. No third-party
+            font CDN is used at runtime.
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-10 grid gap-8 border-b border-border pb-10 md:grid-cols-12" aria-labelledby="software">
+        <div className="md:col-span-4">
+          <p className="type-eyebrow">03 / Software</p>
+          <h2 id="software" className="type-h3 mt-3">
+            Built with
+          </h2>
+        </div>
+        <div className="md:col-span-8">
+          <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="font-medium">Next.js</dt>
+              <dd className="mt-0.5 text-xs text-muted">MIT licence</dd>
+            </div>
+            <div>
+              <dt className="font-medium">React</dt>
+              <dd className="mt-0.5 text-xs text-muted">MIT licence</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Tailwind CSS</dt>
+              <dd className="mt-0.5 text-xs text-muted">MIT licence</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Lucide icons</dt>
+              <dd className="mt-0.5 text-xs text-muted">ISC licence</dd>
+            </div>
+            <div>
+              <dt className="font-medium">rembg</dt>
+              <dd className="mt-0.5 text-xs text-muted">MIT licence</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
 
       <p className="mt-8 max-w-[70ch] text-xs leading-relaxed text-muted">
-        Licence texts: CC0 (public domain dedication), CC BY 3.0 / 4.0 and CC BY-SA 3.0 / 4.0. Where a licence
-        requires share-alike, the derivative here is the cropped and re-staged product image used on this site.
-        If you are a rights holder and would like an image removed, email{" "}
-        <a href="mailto:hello@kelvin.store" className="underline decoration-line-strong underline-offset-4 hover:text-ink">
-          hello@kelvin.store
-        </a>
-        .
+        If you believe something here is misattributed, email{" "}
+        <a
+          href={`mailto:${site.email}`}
+          className="underline decoration-border underline-offset-4 transition-colors duration-150 hover:text-ink"
+        >
+          {site.email}
+        </a>{" "}
+        and we will correct it.
       </p>
     </div>
   );

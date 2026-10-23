@@ -80,26 +80,28 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
   const sortLabel = sortOptions.find((option) => option.value === selected.sort)?.label ?? "Featured";
 
   const panel = (idPrefix: string) => (
-    <div className="space-y-8">
-      <fieldset>
-        <legend className="type-micro text-muted">Brand</legend>
-        <div className="mt-3 space-y-0.5">
-          {brands.map((brand) => (
-            <label key={`${idPrefix}-${brand}`} className="flex cursor-pointer items-center gap-2.5 py-1.5 text-sm">
-              <input
-                type="checkbox"
-                checked={selected.brand.includes(brand)}
-                onChange={() => toggle("brand", brand, selected.brand)}
-                className="h-3.5 w-3.5 accent-[var(--color-accent)]"
-              />
-              <span className="flex-1">{brand}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+    <div className="space-y-7">
+      {brands.length > 1 && (
+        <fieldset>
+          <legend className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink">Brand</legend>
+          <div className="mt-3 space-y-0.5">
+            {brands.map((brand) => (
+              <label key={`${idPrefix}-${brand}`} className="flex cursor-pointer items-center gap-2.5 py-1.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={selected.brand.includes(brand)}
+                  onChange={() => toggle("brand", brand, selected.brand)}
+                  className="filter-check"
+                />
+                <span className="flex-1">{brand}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       <fieldset>
-        <legend className="type-micro text-muted">Price</legend>
+        <legend className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink">Price</legend>
         <div className="mt-3 space-y-0.5">
           {priceBands.map((band) => (
             <label key={`${idPrefix}-${band.id}`} className="flex cursor-pointer items-center gap-2.5 py-1.5 text-sm">
@@ -107,7 +109,7 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                 type="checkbox"
                 checked={selected.price.includes(band.id)}
                 onChange={() => toggle("price", band.id, selected.price)}
-                className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+                className="filter-check"
               />
               <span className="flex-1">{band.label}</span>
             </label>
@@ -117,7 +119,7 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
 
       {facets.map((facet) => (
         <fieldset key={`${idPrefix}-${facet.key}`}>
-          <legend className="type-micro text-muted">{facet.label}</legend>
+          <legend className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink">{facet.label}</legend>
           <div className="mt-3 space-y-0.5">
             {facet.options.map((option) => (
               <label
@@ -128,10 +130,10 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                   type="checkbox"
                   checked={selected.facets[facet.key]?.includes(option.value) ?? false}
                   onChange={() => toggle(`f_${facet.key}`, option.value, selected.facets[facet.key] ?? [])}
-                  className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+                  className="filter-check"
                 />
                 <span className="flex-1">{option.value}</span>
-                <span className="num text-[11px] text-faint">{option.count}</span>
+                <span className="num text-[11px] text-muted">{option.count}</span>
               </label>
             ))}
           </div>
@@ -139,7 +141,7 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
       ))}
 
       <fieldset>
-        <legend className="type-micro text-muted">Availability</legend>
+        <legend className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink">Availability</legend>
         <label className="mt-3 flex cursor-pointer items-center gap-2.5 py-1.5 text-sm">
           <input
             type="checkbox"
@@ -150,7 +152,7 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                 else sp.set("stock", "in");
               })
             }
-            className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+            className="filter-check"
           />
           <span>In stock only</span>
         </label>
@@ -159,13 +161,13 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
   );
 
   return (
-    <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
+    <div className="lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10">
       <aside className="hidden lg:block" aria-label="Product filters">
         <div className="sticky top-[calc(var(--header-h)+24px)]">
           <div className="mb-5 flex items-baseline justify-between">
-            <h2 className="type-micro text-ink">Filters</h2>
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink">Filters</h2>
             {activeCount > 0 && (
-              <button type="button" onClick={clearAll} className="text-[11px] text-muted underline decoration-line-strong underline-offset-4 hover:text-ink">
+              <button type="button" onClick={clearAll} className="text-[11px] text-muted underline decoration-border underline-offset-4 hover:text-ink">
                 Clear all
               </button>
             )}
@@ -175,30 +177,28 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
       </aside>
 
       <div className="min-w-0">
-        <div className="flex items-center justify-between gap-4 border-y border-line py-3">
+        <div className="flex items-center justify-between gap-4 border-y border-border py-2.5">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="flex items-center gap-2 text-[13px] font-medium lg:hidden"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-[12px] font-medium lg:hidden"
               aria-expanded={open}
             >
-              <SlidersHorizontal size={15} strokeWidth={1.6} />
+              <SlidersHorizontal size={14} strokeWidth={1.7} />
               Filter
               {activeCount > 0 && (
-                <span className="num grid h-[17px] min-w-[17px] place-items-center rounded-full bg-ink px-1 text-[10px] leading-none text-paper">
+                <span className="num grid h-[17px] min-w-[17px] place-items-center rounded-full bg-ink px-1 text-[10px] leading-none text-surface">
                   {activeCount}
                 </span>
               )}
             </button>
-            <p className="type-small text-muted">
-              {pluralize(total, "product")}
-            </p>
+            <p className="text-xs text-muted">{pluralize(total, "product")}</p>
           </div>
 
-          <label className="relative flex items-center gap-2 text-[13px]">
+          <label className="relative flex items-center gap-2 text-[12px]">
             <span className="hidden text-muted sm:inline">Sort</span>
-            <span className="relative inline-flex items-center">
+            <span className="relative inline-flex h-9 items-center rounded-lg border border-border bg-surface pl-3 pr-8">
               <select
                 value={selected.sort}
                 onChange={(event) =>
@@ -207,7 +207,7 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                     else sp.set("sort", event.target.value);
                   })
                 }
-                className="h-8 appearance-none bg-transparent pr-6 text-[13px] font-medium text-ink outline-none"
+                className="appearance-none bg-transparent text-[12px] font-medium text-ink outline-none"
                 aria-label="Sort products"
               >
                 {sortOptions.map((option) => (
@@ -216,13 +216,13 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                   </option>
                 ))}
               </select>
-              <ChevronDown size={13} strokeWidth={1.75} className="pointer-events-none absolute right-0 text-muted" />
+              <ChevronDown size={13} strokeWidth={1.75} className="pointer-events-none absolute right-2.5 text-muted" />
             </span>
           </label>
         </div>
 
         {activeCount > 0 && (
-          <div className="flex flex-wrap items-center gap-2 border-b border-line py-3">
+          <div className="flex flex-wrap items-center gap-2 border-b border-border py-3">
             {[
               ...selected.brand.map((value) => ({ key: "brand", value, label: value })),
               ...selected.price.map((value) => ({
@@ -243,13 +243,13 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                     ? update((sp) => sp.delete("stock"))
                     : toggle(chip.key, chip.value, readList(params, chip.key))
                 }
-                className="group inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] border border-line-strong bg-paper px-2 py-1 text-[11px] text-ink-2 transition-colors hover:border-ink"
+                className="group inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2 py-1 text-[11px] text-muted transition-colors hover:border-ink"
               >
                 {chip.label}
                 <X size={11} strokeWidth={2} className="text-muted group-hover:text-ink" />
               </button>
             ))}
-            <button type="button" onClick={clearAll} className="ml-1 text-[11px] text-muted underline decoration-line-strong underline-offset-4 hover:text-ink">
+            <button type="button" onClick={clearAll} className="ml-1 text-[11px] text-muted underline decoration-border underline-offset-4 hover:text-ink">
               Clear all
             </button>
           </div>
@@ -269,22 +269,22 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
             role="dialog"
             aria-modal="true"
             aria-label="Filters"
-            className="absolute inset-y-0 left-0 flex w-[90%] max-w-[380px] flex-col bg-paper"
-            style={{ animation: "drawerIn 320ms var(--ease-out-quint) both" }}
+            className="absolute inset-y-0 left-0 flex w-[90%] max-w-[380px] flex-col bg-surface"
+            style={{ animation: "drawerInLeft 220ms var(--ease-ui) both" }}
           >
-            <div className="flex items-center justify-between border-b border-line px-5 py-4">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h2 className="text-[15px] font-medium">Filters</h2>
-              <button type="button" onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full border border-line-strong" aria-label="Close filters">
+              <button type="button" onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full border border-border" aria-label="Close filters">
                 <X size={15} strokeWidth={1.75} />
               </button>
             </div>
             <div className={cn("flex-1 overflow-y-auto overscroll-contain px-5 py-6")}>{panel("mobile")}</div>
-            <div className="border-t border-line p-5">
+            <div className="border-t border-border p-5">
               <button type="button" onClick={() => setOpen(false)} className="btn w-full">
                 Show {pluralize(total, "product")}
               </button>
               {activeCount > 0 && (
-                <button type="button" onClick={clearAll} className="mt-3 w-full text-xs text-muted underline decoration-line-strong underline-offset-4">
+                <button type="button" onClick={clearAll} className="mt-3 w-full text-xs text-muted underline decoration-border underline-offset-4">
                   Clear all filters
                 </button>
               )}

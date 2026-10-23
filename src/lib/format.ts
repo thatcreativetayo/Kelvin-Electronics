@@ -1,10 +1,11 @@
-export const formatPrice = (cents: number, currency = "USD"): string =>
-  new Intl.NumberFormat("en-US", {
+export const formatPrice = (kobo: number, currency = "NGN"): string =>
+  new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency,
-    minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
-    maximumFractionDigits: cents % 100 === 0 ? 0 : 2,
-  }).format(cents / 100);
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+    currencyDisplay: "narrowSymbol",
+  }).format(kobo / 100);
 
 export const cn = (...values: Array<string | false | null | undefined>): string =>
   values.filter(Boolean).join(" ");

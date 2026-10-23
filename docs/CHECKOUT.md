@@ -1,159 +1,211 @@
-# Checkout
+# Checkout and order capture
 
-Checkout is a **boundary**, not a simulated payment. The form collects delivery details, the API re-prices the order on the server and writes it with a stock reservation, and then it stops. No card data is collected, transmitted or stored in this build.
+Cloud checkout is deliberately honest. It validates a real Nigerian delivery order, refuses to invent a payment, and exposes the integration boundary instead of showing a fake success screen.
 
-With no server credentials, `POST /api/checkout` returns `501` and the UI disables the submit button. That is the expected state of the deployed demo.
+## What the customer sees
 
-## Request
+- `GET /checkout` renders the bag summary and a delivery form.
+- Delivery is Nigeria only. The country select defaults to Nigeria; the server enforces the rule again.
+- The order review shows line items, subtotal, delivery, and total in Naira.
+- If checkout is not configured, the primary button is disabled and reads **Payment not connected**. A note lists the missing server variables.
+- If checkout is configured, the button reads **Record order — ₦…**. The customer is told that submitting writes a real order and reserves stock, but that no card is collected or charged.
 
-```http
+The post-order screen says that payment capture and confirmation email still belong to the payment provider. That is true: no provider adapter exists yet.
+
+## Money invariants
+
+| Rule | Value |
+| --- | --- |
+| Storage unit | Integer kobo |
+| Display | `en-NG`, narrow Naira symbol |
+| Free delivery threshold | ₦150,000 = `15_000_000` kobo |
+| Standard delivery | ₦4,500 = `450_000` kobo |
+| Maximum quantity per line | 10 |
+| Maximum lines per order | 20 |
+| Accepted delivery country | Nigeria |
+
+The client sends only variant IDs and quantities. Prices, names, SKUs, subtotals, and delivery are recomputed by `src/lib/checkout.ts` from `src/data/products.ts`.
+
+## Server flow
+
+```text
 POST /api/checkout
-content-type: application/json
+  |
+  |-- parse JSON; reject malformed bodies with 400
+  |-- validate items, customer, address
+  |     |-- unknown variant -> 409
+  |     |-- quantity or stock failure -> 409
+  |     |-- non-Nigerian country -> 400
+  |
+  |-- if Supabase/payment env missing -> 501 integration_not_configured
+  |-- if admin client cannot be created -> 501
+  |
+  |-- supabase.rpc("create_order", ...)
+  |     |-- lock inventory rows in variant order
+  |     |-- verify availability
+  |     |-- write orders and order_items
+  |     |-- increment reserved stock
+  |     |-- write a stock_movements reservation row
+  |     |-- return a CLD- order number
+  |
+  |-- 201 { orderNumber }
+  |-- 409 insufficient_stock
+  |-- 500 order_failed
 ```
+
+The route never returns a made-up order number. It never accepts a client-supplied total.
+
+### Request shape
 
 ```json
 {
-  "items": [
-    { "variantId": "airpods-max--silver", "quantity": 1 },
-    { "variantId": "kindle-paperwhite--16", "quantity": 2 }
-  ],
+  "items": [{ "variantId": "halo-smart-bulb--single", "quantity": 1 }],
   "customer": {
-    "email": "ada@example.com",
+    "email": "customer@example.com",
     "firstName": "Ada",
     "lastName": "Okafor",
     "phone": "+234..."
   },
   "address": {
-    "line1": "14 Bourdillon Road",
-    "line2": "Flat 3",
+    "line1": "1 Example Street",
+    "line2": "Flat 2",
     "city": "Lagos",
     "region": "Lagos",
-    "postalCode": "101233",
+    "postalCode": "100001",
     "country": "Nigeria"
   }
 }
 ```
 
-Only `variantId` and `quantity` matter for pricing. Names, SKUs, unit prices and totals are looked up server-side; a client-supplied price is ignored.
+### Response shape
 
-## Validation
-
-`src/lib/checkout.ts` enforces:
-
-- JSON object body; 1–20 line items.
-- Quantity is an integer 1–10.
-- Variant ID exists in the server catalog.
-- Requested quantity ≤ seed stock (Supabase re-checks live availability inside the transaction).
-- Valid email (format check), first and last name, address line, city and country.
-- Shipping is free at a $150 subtotal (15000 minor units), otherwise $12 (1200).
-- Currency is `USD` in this build.
-- Totals are recomputed; the client cannot influence them.
-
-Strings are trimmed and length-capped. The route returns `400` for malformed input and `409` for an unknown or short variant.
-
-## Response
-
-| Status | Body | Meaning |
-| --- | --- | --- |
-| `201` | `{ "orderNumber": "KLV-261021-10001" }` | Order written and stock reserved. No payment taken. |
-| `400` | `{ "error": "invalid_order", "message": "..." }` | Validation failed. |
-| `409` | `{ "error": "insufficient_stock", "message": "..." }` | A line ran out between validation and the transaction. |
-| `500` | `{ "error": "order_failed", "message": "..." }` | Database error. No payment has been taken. |
-| `501` | `{ "error": "integration_not_configured", "missing": [...] }` | Supabase/payment environment is incomplete. Nothing was written. |
-
-The success screen says “Order recorded”, never “Payment received”, and it tells the customer that payment and email are not connected. Do not change that copy until they are.
-
-## Database transaction
-
-`public.create_order` in `supabase/migrations/20261021090100_create_order.sql`:
-
-1. Rejects empty, oversized and duplicate-variant orders.
-2. Checks the supplied subtotal equals the sum of `lineTotal`.
-3. Locks every requested `inventory_items` row with `FOR UPDATE`, ordered by `variant_id` to avoid deadlocks.
-4. Rejects the **whole** order if any row is short (`insufficient_stock:{variantId}`).
-5. Generates `KLV-YYMMDD-{sequence}`.
-6. Links the order to an existing customer by email, if one exists.
-7. Inserts the order header (`status = 'pending'`).
-8. Inserts immutable line snapshots: SKU, product name, variant label, unit price, quantity, line total.
-9. Increments `reserved` on each inventory row.
-10. Appends a negative `stock_movements` row with reason `reservation`.
-
-All of it runs in one transaction. A failure at any step rolls the whole order back.
-
-`reserved` reduces availability without changing `on_hand`. On payment confirmation you would:
-
-- decrement `on_hand` and `reserved` by the same quantity,
-- set the order to `paid`,
-- append a `reservation`/`correction` movement if needed.
-
-On cancellation, call `release_order(order_id)` (service role only), which returns reserved units and sets the order to `cancelled`.
-
-## Enabling order capture
-
-1. Apply the migrations and seed: see [../supabase/README.md](../supabase/README.md).
-2. Set on the server:
-
-   ```dotenv
-   NEXT_PUBLIC_SUPABASE_URL=
-   SUPABASE_SERVICE_ROLE_KEY=
-   PAYMENT_PROVIDER_SECRET_KEY=
-   ```
-
-3. Ensure `inventory_items` has a row for every sellable variant.
-4. Confirm the checkout form says “Order capture connected — card payment is not”.
-5. Submit a test order and verify:
-
-   ```sql
-   select order_number, status, subtotal_cents, total_cents from public.orders order by created_at desc limit 1;
-   select variant_id, quantity, unit_price_cents from public.order_items where order_id = '<uuid>';
-   select variant_id, reserved from public.inventory_items where variant_id = 'airpods-max--silver';
-   select variant_id, delta, reason from public.stock_movements order by created_at desc limit 5;
-   ```
-
-`PAYMENT_PROVIDER_SECRET_KEY` gates order recording. Its presence does **not** make a payment work. That is intentional: there is no provider adapter.
-
-## Adding a payment provider
-
-The recommended sequence for a real launch:
-
-1. **Idempotency first.** Add a client-generated key to the request and a unique `idempotency_key` column on `orders`. Pass it to `create_order` and return the existing order if it repeats. The current UI prevents double clicks, but not network retries or two tabs.
-2. **Create the order as `pending` without reserving forever.** A reservation should expire (for example, 30 minutes) if payment never completes. A scheduled job should release expired reservations.
-3. **Initialise payment** with the provider (Stripe PaymentIntent, Paystack transaction). Send the server-computed amount, currency and order number as metadata.
-4. **Return only what the client needs** — a client secret or authorization URL. Never return the provider secret.
-5. **Verify the webhook signature** on a raw body, idempotently. On success: mark `paid`, move reserved stock to sold, write a movement, send the confirmation email. On failure/cancel: release the reservation.
-6. **Never trust the redirect.** The customer returning to `/checkout/success` is not proof of payment; the webhook is.
-7. **Add rate limiting** to the checkout and sign endpoints. There is none in this build.
-8. **Add tax** where required. The current flat shipping rule and USD pricing are demo rules, not a tax engine.
-
-Nigeria-first options are Paystack or Flutterwave; Stripe is the usual choice for USD/international. Whichever is chosen, the order table already stores the payment reference slot (`payment_intent`).
-
-## Security notes
-
-- Service-role key and provider secret are server-only; never `NEXT_PUBLIC_`.
-- `create_order` is `security definer` with `search_path = public, pg_temp`, revoked from `public`, `anon` and `authenticated`.
-- Order rows are read-only to authenticated customers and only their own; no client role can insert or change totals.
-- Stock movements are service-role only.
-- The checkout page is `noindex`.
-- The current route has no authentication requirement, so anyone who can reach it and has valid server config can create pending orders. Add rate limiting and bot protection before launch.
-
-## Manual test
-
-```bash
-curl -i -X POST http://localhost:3000/api/checkout \
-  -H "content-type: application/json" \
-  -d '{
-    "items": [{"variantId": "airpods-pro--white", "quantity": 1}],
-    "customer": {"email": "test@example.com", "firstName": "Test", "lastName": "Order"},
-    "address": {"line1": "1 Test Street", "city": "Lagos", "country": "Nigeria"}
-  }'
+```json
+{ "orderNumber": "CLD-261022-10001" }
 ```
 
-Without credentials the expected response is `501` with:
+Unconfigured:
 
 ```json
 {
   "error": "integration_not_configured",
-  "message": "Checkout is not connected. No order has been created and no payment has been taken. Provide the missing server-side variables to enable order capture.",
-  "missing": ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "PAYMENT_PROVIDER_SECRET_KEY"]
+  "message": "Checkout is not connected. No order has been created and no payment has been taken...",
+  "missing": [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "PAYMENT_PROVIDER_SECRET_KEY"
+  ]
 }
 ```
+
+Status `501`. This is the expected state of the repository until a real deployment is configured.
+
+## Supabase function
+
+The active function is defined in `supabase/migrations/20261022120000_cloud_currency.sql`. It:
+
+- Validates email presence, address object, non-empty item array, totals, and NGN currency.
+- Rejects duplicate variants, unknown variants, quantities outside 1–10, and insufficient stock.
+- Locks inventory rows in variant order to avoid deadlocks.
+- Computes the total as `subtotal + shipping` and writes `currency = 'NGN'`.
+- Generates `CLD-YYMMDD-NNNNN` from `order_number_seq`.
+- Reserves stock by increasing `inventory_items.reserved`; it does not reduce `on_hand` until fulfilment.
+- Appends a reservation row to `stock_movements`.
+
+Only `service_role` may execute the function. The browser never receives the service-role key.
+
+## Configuration
+
+Checkout becomes technically enabled when all of these are present at build/runtime:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+PAYMENT_PROVIDER_SECRET_KEY=
+```
+
+`PAYMENT_PROVIDER_SECRET_KEY` is a **readiness gate only**. No card charge is implemented behind it.
+
+Do not point a public deployment at a production Supabase project until the payment adapter, confirmation email, and order operations are complete.
+
+## Payment adapter still to build
+
+To accept real payments:
+
+1. Choose a Nigerian provider (Paystack or Flutterwave are the usual options).
+2. Create a server-only adapter that initialises a charge for the recorded order total.
+3. Keep the order in `pending` until a verified webhook confirms payment.
+4. Verify the webhook signature and the amount against the stored `total_kobo`.
+5. Store the provider reference in `orders.payment_intent` and transition status to `paid`.
+6. Send the confirmation email only after verification.
+7. Add idempotency so a repeated webhook cannot charge or fulfil twice.
+8. Add release/expiry handling for abandoned reservations.
+
+Never trust a client-side “payment successful” callback. The database transition must be driven by a verified server event.
+
+## Local verification
+
+Start the dev server, then:
+
+```bash
+node tools/smoke.mjs
+```
+
+The smoke test covers:
+
+- Adding a variant from the PDP.
+- Quantity persistence in `cloud.cart.v1`.
+- The ₦37,000 subtotal for two Halo bulbs.
+- Removing the line and showing the empty bag.
+- The disabled “Payment not connected” checkout button.
+- `501 integration_not_configured` from the API.
+- Rejection of a Ghana delivery address.
+
+Manual API check:
+
+```bash
+curl -i -X POST http://localhost:3000/api/checkout \
+  -H "content-type: application/json" \
+  -d '{"items":[{"variantId":"halo-smart-bulb--single","quantity":1}],"customer":{"email":"qa@cloud.ng","firstName":"QA","lastName":"Cloud"},"address":{"line1":"1 Test Street","city":"Lagos","country":"Nigeria"}}'
+```
+
+Expected without environment variables: `501`, `integration_not_configured`.
+
+## Database verification after applying migrations
+
+```sql
+-- latest orders
+select order_number, status, subtotal_kobo, shipping_kobo, total_kobo, currency, created_at
+from public.orders
+order by created_at desc
+limit 1;
+
+-- order lines
+select variant_id, product_name, variant_label, quantity, unit_price_kobo, line_total_kobo
+from public.order_items
+where order_id = '<uuid>';
+
+-- reservation audit
+select variant_id, delta, reason, order_id, created_at
+from public.stock_movements
+order by created_at desc
+limit 10;
+
+-- available stock
+select variant_id, sku, on_hand, reserved, safety_stock,
+       (on_hand - reserved - safety_stock) as available
+from public.inventory_items
+order by variant_id;
+```
+
+Expected: `currency = 'NGN'`, all money columns are integers in kobo, and a successful order increments `reserved` by the ordered quantity.
+
+## Security checklist
+
+- Service-role key exists only in server environment variables.
+- `create_order` is executable only by `service_role`.
+- No card data is collected or stored in this build.
+- The checkout endpoint validates the country, variant IDs, quantities, and stock again.
+- Prices and delivery are never accepted from the client.
+- Row level security and policies must be reviewed in a real Supabase project before launch.
+
+See [Supabase setup](../supabase/README.md) for migration and seed instructions.

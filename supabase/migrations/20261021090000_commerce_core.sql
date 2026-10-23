@@ -1,5 +1,6 @@
--- KELVIN commerce schema
+-- Initial commerce schema (draft column names).
 -- Sanity owns content. Supabase owns inventory, customers, carts and orders.
+-- The Cloud currency migration normalises money columns to kobo and currency to NGN.
 -- Every variant_id here is the same string used by the Sanity variant field.
 
 create extension if not exists "pgcrypto";

@@ -1,290 +1,352 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, RotateCcw, ShieldCheck, Truck } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BadgeCheck,
+  Check,
+  Lock,
+  Mail,
+  MessageCircle,
+  Truck,
+} from "lucide-react";
+import { HeroCarousel } from "@/components/hero-carousel";
 import { ProductCard } from "@/components/product-card";
+import { QuickAdd } from "@/components/quick-add";
+import { site } from "@/data/site";
+import { isAvailable, priceOf } from "@/lib/catalog";
+import { whatsappSupportHref } from "@/lib/contact";
 import { getCatalog } from "@/lib/content";
 import { formatPrice, pluralize } from "@/lib/format";
 
 export const revalidate = 300;
 
-const services = [
+const promises = [
+  {
+    icon: BadgeCheck,
+    title: "Genuine products",
+    body: "Sourced from authorised suppliers.",
+  },
   {
     icon: Truck,
-    title: "Delivery",
-    body: "Complimentary over $150. Lagos and Abuja in 1–2 business days, international in 3–5. Every parcel is insured and tracked.",
+    title: "Fast delivery",
+    body: "Lagos in 1-3 days. Nationwide in 2-5.",
   },
   {
-    icon: RotateCcw,
-    title: "Returns",
-    body: "Thirty days from delivery, unopened or faulty. We cover return shipping on anything that arrives damaged or not as described.",
+    icon: Lock,
+    title: "Secure payment",
+    body: "Naira checkout. No card details stored.",
   },
   {
-    icon: ShieldCheck,
-    title: "Warranty",
-    body: "Two years on every product we sell, handled in-house. Repairs first, replacement if a repair is not possible.",
+    icon: MessageCircle,
+    title: "WhatsApp support",
+    body: "Real people, Monday to Friday.",
+  },
+];
+
+const steps = [
+  {
+    number: "01",
+    title: "We choose it.",
+    body: "A short edit of electronics, home and everyday wear, bought from makers we trust.",
+  },
+  {
+    number: "02",
+    title: "We clear it.",
+    body: "Customs and duties are handled before it reaches you. The Naira price is the final price.",
+  },
+  {
+    number: "03",
+    title: "We deliver it.",
+    body: "Dispatch from Lagos in 1-3 working days, with tracking when the parcel leaves us.",
   },
 ];
 
 export default async function HomePage() {
-  const { products: catalogProducts, collections: departments } = await getCatalog();
+  const { products, collections } = await getCatalog();
 
-  const hero = catalogProducts.find((product) => product.slug === "airpods-max") ?? catalogProducts[0]!;
-  const pick = (slugs: string[]) =>
-    slugs
-      .map((slug) => catalogProducts.find((product) => product.slug === slug))
-      .filter((product): product is (typeof catalogProducts)[number] => Boolean(product));
+  const available = products.filter(isAvailable);
+  const featured = available.filter((product) => product.featured);
+  const heroProducts = (featured.length >= 2 ? featured : available).slice(0, 3);
+  const newIn = [...products]
+    .filter((product) => product.newArrival)
+    .sort((a, b) => new Date(b.releasedAt).getTime() - new Date(a.releasedAt).getTime());
 
-  const newArrivals = pick(["airpods-pro", "kindle-paperwhite", "fujifilm-x-t5", "steam-deck"]);
-  const shortlist = pick(["macbook-air", "iphone-15-pro", "sony-a7r-iv", "nintendo-switch-oled"]);
+  const spotlight =
+    featured.find((product) => product.collection === "kitchen") ??
+    featured.find((product) => !heroProducts.some((item) => item.id === product.id)) ??
+    featured[0] ??
+    available[0];
+
+  const countFor = (slug: string) => products.filter((product) => product.collection === slug).length;
 
   return (
     <>
-      {/* Hero */}
-      <section className="shell pt-8 pb-14 md:pt-12 md:pb-20">
-        <div className="grid items-end gap-10 lg:grid-cols-12 lg:items-center lg:gap-10">
-          <div className="lg:col-span-6">
-            <p className="type-micro text-muted">Est. 2026 — Precision electronics</p>
-            <h1 className="type-display mt-5">
-              Built to be
-              <br />
-              lived with.
+      <section className="shell pb-10 pt-3 sm:pt-5 md:pb-14" aria-labelledby="hero-title">
+        <div className="grid items-stretch gap-5 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 xl:gap-16">
+          <div className="flex flex-col justify-center py-3 sm:py-6 lg:py-12">
+            <p className="type-eyebrow">Trusted Nigerian importer</p>
+            <h1 id="hero-title" className="type-hero mt-5 max-w-[11ch]">
+              The good stuff, brought home.
             </h1>
-            <p className="type-lead mt-6 max-w-[40ch]">
-              Audio, computing, imaging and gaming — chosen for how they hold up after the unboxing.
-              Measured, not hyped.
+            <p className="type-lead mt-6 max-w-[38ch]">
+              Electronics, home essentials and everyday wear. Genuine stock, Naira prices, customs already
+              handled.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-2.5">
               <Link href="/collections/all" className="btn">
-                Shop the catalog
-                <ArrowRight size={15} strokeWidth={1.75} />
+                Shop the catalogue
+                <ArrowRight size={16} strokeWidth={1.9} />
               </Link>
-              <Link href="#point-of-view" className="btn btn-outline">
-                Our point of view
+              <Link href="/how-it-works" className="btn btn-secondary">
+                How Cloud works
               </Link>
             </div>
+
+            <dl className="mt-10 grid max-w-[460px] grid-cols-3 gap-5 border-t border-border pt-5">
+              <div>
+                <dt className="type-micro text-muted">In stock</dt>
+                <dd className="num mt-1 text-[22px] font-semibold leading-none">{products.length}</dd>
+              </div>
+              <div>
+                <dt className="type-micro text-muted">Categories</dt>
+                <dd className="num mt-1 text-[22px] font-semibold leading-none">{collections.length}</dd>
+              </div>
+              <div>
+                <dt className="type-micro text-muted">Customs</dt>
+                <dd className="mt-1 text-[22px] font-semibold leading-none">Included</dd>
+              </div>
+            </dl>
           </div>
 
-          <div className="lg:col-span-6">
-            <div className="product-media product-media-hero relative aspect-[5/4] md:aspect-[4/3]">
-              <Image
-                src={hero.images[0].src}
-                alt={hero.images[0].alt}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 55vw"
-                className="object-contain p-[2%]"
-              />
-            </div>
-            <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
-              <p className="type-micro text-muted">
-                01 — {hero.name}
-                {Object.values(hero.variants[0].options).length
-                  ? ` / ${Object.values(hero.variants[0].options).join(" / ")}`
-                  : ""}
-              </p>
-              <p className="type-micro text-ink">{formatPrice(hero.variants[0].price)}</p>
-            </div>
+          <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-soft">
+            <HeroCarousel products={heroProducts} />
           </div>
         </div>
       </section>
 
-      {/* Departments */}
-      <section className="shell pb-20 md:pb-28" aria-labelledby="departments">
-        <div className="flex items-end justify-between gap-6 border-b border-line pb-4">
-          <h2 id="departments" className="type-h3">
-            Five departments
-          </h2>
+      <section aria-label="Why shop with Cloud" className="border-y border-border bg-surface">
+        <div className="shell grid grid-cols-2 gap-x-5 gap-y-6 py-6 md:grid-cols-4 md:gap-x-0 md:py-7">
+          {promises.map((promise, index) => (
+            <div
+              key={promise.title}
+              className={
+                index === 0
+                  ? "flex items-start gap-3 md:pr-7"
+                  : "flex items-start gap-3 md:border-l md:border-border md:pl-7 md:pr-7 md:last:pr-0"
+              }
+            >
+              <promise.icon size={18} strokeWidth={1.7} className="mt-0.5 shrink-0 text-primary-text" />
+              <div>
+                <h2 className="text-[12.5px] font-semibold leading-tight tracking-[-0.01em]">{promise.title}</h2>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted">{promise.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="shell section" aria-labelledby="categories-title">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="type-eyebrow">Shop by category</p>
+            <h2 id="categories-title" className="type-h2 mt-2.5">
+              Find what you came for.
+            </h2>
+          </div>
           <Link
             href="/collections/all"
-            className="type-micro inline-flex items-center gap-1.5 text-muted transition-colors hover:text-ink"
+            className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted transition-colors duration-150 hover:text-ink"
           >
-            {pluralize(catalogProducts.length, "product")}
-            <ArrowUpRight size={12} strokeWidth={1.75} />
+            All products
+            <ArrowUpRight size={14} strokeWidth={1.9} />
           </Link>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-5">
-          {departments.map((collection) => (
-            <Link key={collection.slug} href={`/collections/${collection.slug}`} className="group">
-              <div className="product-media relative aspect-square">
+        <div className="rail-bleed mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 no-scrollbar sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
+          {collections.map((collection) => (
+            <Link
+              key={collection.slug}
+              href={`/collections/${collection.slug}`}
+              className="card card-hover group relative w-[74vw] max-w-[310px] shrink-0 snap-start overflow-hidden sm:w-auto sm:max-w-none"
+            >
+              <div className="relative aspect-[4/5] overflow-hidden bg-bg">
+                <span
+                  aria-hidden
+                  className="absolute left-1/2 top-[44%] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface"
+                />
                 <Image
                   src={collection.image}
-                  alt=""
+                  alt={`${collection.name} collection`}
                   fill
-                  sizes="(max-width: 768px) 45vw, 18vw"
-                  className="object-contain p-[4%]"
+                  sizes="(max-width: 640px) 74vw, (max-width: 1024px) 45vw, 25vw"
+                  className="object-contain p-[8%] pb-[18%] transition-transform duration-200 group-hover:scale-[1.025]"
                 />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-surface via-surface/90 to-transparent px-4 pb-4 pt-16">
+                  <div className="flex items-end justify-between gap-3">
+                    <div>
+                      <p className="type-micro text-muted">{pluralize(countFor(collection.slug), "piece")}</p>
+                      <h3 className="type-h3 mt-1">{collection.name}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted">{collection.tagline}</p>
+                    </div>
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border bg-surface text-ink transition-colors duration-150 group-hover:border-primary group-hover:text-primary-text">
+                      <ArrowUpRight size={15} strokeWidth={1.9} />
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="mt-3 flex items-baseline justify-between">
-                <h3 className="text-[15px] font-medium tracking-[-0.015em]">{collection.name}</h3>
-                <span className="type-micro text-faint">{collection.eyebrow.split("/")[0].trim()}</span>
-              </div>
-              <p className="mt-0.5 text-xs text-muted">{collection.tagline}</p>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* New this week */}
-      <section className="border-y border-line bg-paper py-16 md:py-20" aria-labelledby="new">
-        <div className="shell">
-          <div className="flex items-end justify-between gap-6 border-b border-line pb-4">
+      <section className="border-y border-border bg-surface" aria-labelledby="new-in-title">
+        <div className="shell section">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="type-micro text-muted">Just landed</p>
-              <h2 id="new" className="type-h2 mt-2">
-                New this week
+              <p className="type-eyebrow">Just landed</p>
+              <h2 id="new-in-title" className="type-h2 mt-2.5">
+                New in.
               </h2>
             </div>
             <Link
               href="/collections/all?sort=newest"
-              className="type-micro hidden items-center gap-1.5 text-muted transition-colors hover:text-ink sm:inline-flex"
+              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted transition-colors duration-150 hover:text-ink"
             >
               Everything new
-              <ArrowUpRight size={12} strokeWidth={1.75} />
+              <ArrowUpRight size={14} strokeWidth={1.9} />
             </Link>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
-            {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <div className="rail-bleed mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 no-scrollbar sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
+            {newIn.slice(0, 4).map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                priority={index < 2}
+                className="w-[76vw] max-w-[300px] shrink-0 snap-start sm:w-auto sm:max-w-none"
+              />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Point of view */}
-      <section id="point-of-view" className="bg-ink py-16 text-paper md:py-24">
-        <div className="shell grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-16">
-          <div className="lg:col-span-5">
-            <p className="type-micro text-white/50">Our point of view</p>
-            <h2 className="type-h2 mt-4 text-paper">
-              Measured,
-              <br />
-              not hyped.
-            </h2>
-            <p className="mt-6 max-w-[44ch] text-[15px] leading-relaxed text-white/70">
-              Most electronics are sold on launch-week adjectives. We would rather tell you the driver size,
-              the battery chemistry and what a product is actually like on the fourth month. If a specification
-              does not change how you use the thing, we leave it out.
-            </p>
-            <div className="mt-10 grid max-w-[420px] grid-cols-3 gap-4 border-t border-white/15 pt-6">
-              {[
-                { value: "02 yr", label: "Warranty" },
-                { value: "30 day", label: "Returns" },
-                { value: String(catalogProducts.length), label: "Products" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <p className="num text-2xl tracking-[-0.03em]">{stat.value}</p>
-                  <p className="type-micro mt-1 text-white/45">{stat.label}</p>
-                </div>
-              ))}
+      {spotlight && (
+        <section className="shell section" aria-labelledby="spotlight-title">
+          <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-14">
+            <div className="lg:col-span-6">
+              <div className="relative aspect-square overflow-hidden rounded-2xl bg-bg">
+                <span
+                  aria-hidden
+                  className="absolute left-1/2 top-1/2 aspect-square w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface"
+                />
+                <Image
+                  src={spotlight.images[0].src}
+                  alt={spotlight.images[0].alt}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-contain p-[9%]"
+                />
+                <span className="tag absolute left-4 top-4">In focus</span>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 lg:pl-4">
+              <p className="type-eyebrow">{spotlight.brand}</p>
+              <h2 id="spotlight-title" className="type-h1 mt-3 max-w-[12ch]">
+                {spotlight.name}
+              </h2>
+              <p className="mt-5 max-w-[46ch] text-[15px] leading-relaxed text-muted">{spotlight.summary}</p>
+
+              <p className="num mt-6 text-xl font-semibold">{formatPrice(priceOf(spotlight))}</p>
+              <p className="mt-1 text-[11px] text-muted">Customs included. Free delivery over ₦150,000.</p>
+
+              <div className="mt-7 flex flex-wrap items-center gap-2.5">
+                <QuickAdd product={spotlight} label="Add to cart" size="md" className="w-full sm:w-auto sm:px-5" />
+                <Link href={`/products/${spotlight.slug}`} className="btn btn-secondary">
+                  View details
+                  <ArrowRight size={15} strokeWidth={1.9} />
+                </Link>
+              </div>
+
+              <ul className="mt-8 grid gap-2.5 border-t border-border pt-5 text-sm">
+                {spotlight.highlights.slice(0, 3).map((highlight) => (
+                  <li key={highlight} className="flex items-start gap-2.5">
+                    <Check size={14} strokeWidth={2.2} className="mt-1 shrink-0 text-primary-text" />
+                    {highlight}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
+        </section>
+      )}
 
-          <div className="flex justify-start lg:col-span-7 lg:justify-end">
-            <figure className="w-full max-w-[440px]">
-              <div className="relative aspect-square bg-[#f4f2ec]">
-                <Image
-                  src="/products/sony-a7r-iv.png"
-                  alt="Sony Alpha 7R IV with its sensor exposed, front view"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 440px"
-                  className="object-contain p-[3%]"
-                />
-                <span className="absolute left-3 top-3 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-2">
-                  Plate 04
-                </span>
-              </div>
-              <figcaption className="mt-3 flex items-center justify-between">
-                <span className="type-micro text-white/45">Alpha 7R IV — 61 MP full-frame</span>
-                <Link
-                  href="/collections/imaging"
-                  className="type-micro inline-flex items-center gap-1.5 text-white/70 transition-colors hover:text-white"
-                >
-                  Imaging
-                  <ArrowUpRight size={12} strokeWidth={1.75} />
-                </Link>
-              </figcaption>
-            </figure>
-          </div>
-        </div>
-      </section>
-
-      {/* Shortlist */}
-      <section className="shell py-16 md:py-24" aria-labelledby="shortlist">
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-4">
-            <div className="lg:sticky lg:top-[calc(var(--header-h)+32px)]">
-              <p className="type-micro text-muted">The shortlist</p>
-              <h2 id="shortlist" className="type-h2 mt-2">
-                What we
-                <br />
-                recommend first.
+      <section className="bg-ink text-surface" aria-labelledby="promise-title">
+        <div className="shell section">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-5">
+              <p className="type-eyebrow text-primary">The Cloud promise</p>
+              <h2 id="promise-title" className="type-h2 mt-3 max-w-[12ch]">
+                Imported properly, from start to finish.
               </h2>
-              <p className="mt-5 max-w-[34ch] text-sm leading-relaxed text-ink-2">
-                Four products we hand to people who ask what to buy, without a brief. Each one is in stock and
-                has been here longer than a season.
+              <p className="mt-5 max-w-[38ch] text-sm leading-relaxed text-surface/65">
+                Cloud is an importer, not a marketplace. We buy the stock, carry the customs risk and stand
+                behind what arrives at your door.
               </p>
-              <Link
-                href="/collections/all?sort=featured"
-                className="type-micro mt-8 inline-flex items-center gap-1.5 text-accent"
-              >
-                See the full catalog
-                <ArrowUpRight size={12} strokeWidth={2} />
+              <Link href="/how-it-works" className="btn mt-7">
+                Read the full promise
+                <ArrowRight size={15} strokeWidth={1.9} />
               </Link>
             </div>
-          </div>
 
-          <ol className="lg:col-span-8">
-            {shortlist.map((product, index) => (
-              <li key={product.id} className="border-t border-line last:border-b">
-                <Link href={`/products/${product.slug}`} className="group grid grid-cols-[auto_84px_1fr_auto] items-center gap-4 py-5 sm:gap-6">
-                  <span className="type-micro w-6 text-faint">{String(index + 1).padStart(2, "0")}</span>
-                  <div className="product-media relative h-[84px] w-[84px]">
-                    <Image
-                      src={product.images[0].src}
-                      alt=""
-                      fill
-                      sizes="84px"
-                      className="object-contain p-2"
-                    />
+            <div className="lg:col-span-7">
+              {steps.map((step) => (
+                <div
+                  key={step.number}
+                  className="grid grid-cols-[36px_1fr] gap-4 border-t border-surface/15 py-5 sm:grid-cols-[56px_1fr] sm:gap-6 sm:py-6"
+                >
+                  <span className="num text-sm font-medium text-primary">{step.number}</span>
+                  <div>
+                    <h3 className="text-[15px] font-medium tracking-[-0.01em]">{step.title}</h3>
+                    <p className="mt-1.5 max-w-[48ch] text-xs leading-relaxed text-surface/60">{step.body}</p>
                   </div>
-                  <div className="min-w-0">
-                    <p className="type-micro text-muted">{product.brand}</p>
-                    <h3 className="mt-0.5 truncate text-[17px] font-medium tracking-[-0.02em] transition-colors group-hover:text-accent">
-                      {product.name}
-                    </h3>
-                    <p className="mt-0.5 hidden text-xs text-muted sm:block">{product.summary}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="num text-sm">{formatPrice(product.variants[0].price)}</span>
-                    <ArrowRight
-                      size={16}
-                      strokeWidth={1.5}
-                      className="text-faint transition-transform duration-300 group-hover:translate-x-1 group-hover:text-ink"
-                    />
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ol>
+                </div>
+              ))}
+              <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-surface/15 pt-5 text-xs text-surface/60">
+                {["Genuine stock", "Customs included", "14-day returns"].map((line) => (
+                  <span key={line} className="inline-flex items-center gap-1.5">
+                    <Check size={12} strokeWidth={2.2} className="text-primary" />
+                    {line}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Service */}
-      <section id="service" className="border-t border-line bg-paper py-16 md:py-20" aria-labelledby="service-heading">
-        <div className="shell">
-          <h2 id="service-heading" className="type-micro text-muted">
-            Before you order
-          </h2>
-          <div className="mt-8 grid gap-10 md:grid-cols-3 md:gap-8">
-            {services.map((service) => (
-              <div key={service.title} className="border-t border-line pt-6 md:border-t-0 md:border-l md:pl-8 md:pt-0">
-                <service.icon size={20} strokeWidth={1.4} className="text-ink" />
-                <h3 className="mt-4 text-[15px] font-medium">{service.title}</h3>
-                <p className="mt-2 max-w-[36ch] text-sm leading-relaxed text-ink-2">{service.body}</p>
-              </div>
-            ))}
+      <section className="border-b border-border bg-surface" aria-labelledby="help-title">
+        <div className="shell grid gap-6 py-10 sm:py-12 md:grid-cols-12 md:items-center md:gap-10">
+          <div className="md:col-span-7">
+            <p className="type-eyebrow">Need a hand?</p>
+            <h2 id="help-title" className="type-h2 mt-2.5">
+              Ask us before you order.
+            </h2>
+            <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-muted">
+              Send the product name and your city. We will confirm stock, delivery and the final price before
+              you commit.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2.5 md:col-span-5 md:justify-end">
+            <a href={whatsappSupportHref()} className="btn">
+              <MessageCircle size={16} strokeWidth={1.9} />
+              WhatsApp us
+            </a>
+            <a href={`mailto:${site.email}`} className="btn btn-secondary">
+              <Mail size={15} strokeWidth={1.9} />
+              Email
+            </a>
           </div>
         </div>
       </section>

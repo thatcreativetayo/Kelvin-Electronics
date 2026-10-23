@@ -32,7 +32,7 @@ export const cloudinaryImage = defineType({
       name: "fallbackUrl",
       title: "Local fallback path",
       type: "string",
-      description: "Used by the storefront when Cloudinary is not configured. For example /products/airpods-max.jpg.",
+      description: "Used by the storefront when Cloudinary is not configured. For example /products/halo-bulb.png.",
       initialValue: "",
     }),
     defineField({
@@ -137,9 +137,10 @@ export const variant = defineType({
     }),
     defineField({
       name: "price",
-      title: "Price (cents)",
+      title: "Price (kobo)",
       type: "number",
-      description: "Integer minor units. $549.00 is 54900. Prices are stored in cents to avoid float drift.",
+      description:
+        "Integer minor units. ₦54,900 is 5490000 kobo. Prices are stored in kobo to avoid float drift.",
       validation: (rule) => rule.required().integer().positive().min(100),
     }),
     defineField({
@@ -155,9 +156,9 @@ export const variant = defineType({
     select: { title: "sku", options: "options", price: "price", stock: "stock" },
     prepare: ({ title, options, price, stock }) => ({
       title: title,
-      subtitle: `${(options ?? []).map((option: { value: string }) => option.value).join(" / ")} · $${(
+      subtitle: `${(options ?? []).map((option: { value: string }) => option.value).join(" / ")} · ₦${(
         (price ?? 0) / 100
-      ).toLocaleString()} · ${stock ?? 0} in stock`,
+      ).toLocaleString("en-NG")} · ${stock ?? 0} in stock`,
     }),
   },
 });

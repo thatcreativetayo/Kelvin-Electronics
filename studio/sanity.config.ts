@@ -5,12 +5,12 @@ import { schemaTypes } from "./schemas";
 import { structure } from "./structure";
 import { StudioLogo } from "./components/StudioLogo";
 
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? "kelvin-project-id";
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? "cloud-project-id";
 const dataset = process.env.SANITY_STUDIO_DATASET ?? "production";
 
 export default defineConfig({
-  name: "kelvin",
-  title: "KELVIN Studio",
+  name: "cloud",
+  title: "Cloud Studio",
   projectId,
   dataset,
   basePath: "/",

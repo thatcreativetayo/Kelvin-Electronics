@@ -1,345 +1,147 @@
-# KELVIN
+# cloud.
 
-An independent electronics storefront. Audio, computing, mobile, imaging and gaming, chosen for how they hold up after the unboxing.
+**The good stuff, brought home.**
 
-The visual language is warm bone paper, near-black ink and a single ultramarine accent. Product photography floats directly on the canvas — no cards, no gradients, no invented reviews or countdowns.
+Cloud is a Nigerian importer and retailer. We buy home electronics abroad, handle customs, and deliver them across Nigeria in Naira. Cloud Wear is the first clothing capsule, with more apparel to follow.
 
-**Current state:** the storefront is complete and deployable on the local seed catalog. Sanity Studio, the Supabase commerce schema and Cloudinary uploads are implemented and documented, but are **not connected** until you provide credentials. Checkout is an honest boundary: it never simulates a payment. See [Boundaries](#boundaries).
+This repository is the Cloud storefront: a Next.js 16 App Router application with a local-first cart, an honest checkout boundary, optional Sanity content, optional Supabase commerce, and optional Cloudinary media.
 
----
+## At a glance
 
-## Stack
-
-| Layer | Choice |
+| | |
 | --- | --- |
-| Framework | Next.js 16.4 (App Router, Turbopack) |
-| UI | React 19.3, Tailwind CSS 4.3, TypeScript 5.9 |
-| Type | Geist Sans / Geist Mono |
-| Content | Sanity Studio 4 (separate package in `studio/`) |
-| Commerce | Supabase Postgres + RLS + `create_order` transaction |
-| Media | Cloudinary signed uploads + responsive delivery |
-| Icons | Lucide |
-| Package manager | pnpm 11 |
+| Storefront | Next.js 16.4.2, React 19.3.1, TypeScript 5.9.3 |
+| Styling | Tailwind CSS 4.3.3 with semantic tokens in `src/app/globals.css` |
+| Package manager | pnpm 11.8.0 |
+| Type | Self-hosted DM Sans (commerce) and Instrument Serif (display) |
+| Catalogue | 12 products, 27 variants: Lighting, Power, Kitchen, Wear |
+| Currency | NGN, integer kobo everywhere in code and data |
+| Delivery | Free over ₦150,000, otherwise ₦4,500; Nigeria only |
+| Cart storage | `localStorage` key `cloud.cart.v1` |
+| Commerce source | Local catalogue seed by default; Sanity for published content |
+| Order capture | Supabase Postgres function, closed until server credentials exist |
 
-There is no component library and no UI kit. Every surface is hand-built against a small token system in `src/app/globals.css`.
+## Run it
 
----
-
-## Quick start
+Requires Node 22 or newer.
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Open <http://localhost:3000>. No environment variables are required for the storefront to run: it reads the 14-product seed catalog in `src/data/` and checkout stays closed.
+Open http://localhost:3000. No environment variables are required for the storefront, the seeded catalogue, the local cart, or the checkout boundary.
+
+Other commands:
 
 ```bash
-pnpm build     # production build
-pnpm start     # serve the production build
-pnpm typecheck # TypeScript, storefront only
+pnpm typecheck      # TypeScript, storefront
+pnpm build          # production build
+pnpm start          # serve the production build on :3000
+pnpm seed:check     # compare supabase/seed.sql with src/data/products.ts
+pnpm products:build # regenerate the original product PNG renders
 ```
 
-The Studio is a separate install. Run these from the repository root:
+The Sanity Studio is a separate package:
 
 ```bash
 cd studio
 pnpm install
-pnpm dev     # http://localhost:3333
+pnpm dev            # http://localhost:3333
+pnpm typecheck
+pnpm build
 ```
 
-It needs a Sanity project ID first — see [Sanity](#sanity-content).
+## What is in the storefront
 
----
+- A warm editorial homepage with a prominent product search, colour-blocked collections, the Cloud Home edit, the Cloud Wear capsule, and the import promise.
+- Collection pages for `/collections/all`, `lighting`, `power`, `kitchen`, and `wear`, including price bands, type, room or fit filters, and sorting.
+- Product pages with variant selection, quantity, stock state, specifications, delivery, returns, and a one-year electronics warranty.
+- A search page at `/search?q=...` over the current catalogue.
+- A local-first bag, cart drawer, and cart page. Adding to the bag never calls a server.
+- A checkout form that accepts Nigerian delivery addresses only. Totals are recalculated on the server from the catalogue; the client cannot choose a price.
+- `/how-it-works` for sourcing, delivery, returns, warranty, and the honest-commerce boundaries.
+- `/credits` for the original Cloud product renders and self-hosted typeface licences.
+- `/studio` as a read-only integration status board. The editable Sanity Studio lives in `studio/`.
 
-## What is here
+## Prices, stock, and delivery
 
-| Surface | Route | State |
+All money is stored as **integer kobo**. For example, ₦18,500 is `1850000`. The single formatter is `src/lib/format.ts`; it uses `en-NG` and the narrow Naira symbol.
+
+Shipping rules live in `src/lib/shipping.ts`:
+
+- Free at a ₦150,000 subtotal or above (`15_000_000` kobo).
+- Otherwise ₦4,500 (`450_000` kobo).
+- The cart preview, checkout summary, and server validator use the same rule.
+
+The catalogue in `src/data/products.ts` is the source of truth for the seeded build. Product stock is seeded there and mirrored in `supabase/seed.sql`. Once Supabase is live, inventory lives in `inventory_items`; the storefront reads current stock from `/api/stock` and falls back to seed stock when Supabase is not configured.
+
+## Checkout boundary
+
+The UI does not simulate a successful payment. When Supabase or the payment environment is missing:
+
+- The checkout button is disabled and reads “Payment not connected”.
+- `POST /api/checkout` returns `501 integration_not_configured` with the missing variable names.
+- No order is written and no payment is taken.
+
+When the server variables are present, the route validates the Nigerian address, rebuilds every line total from the catalogue, and calls the Supabase `create_order` function. That function reserves stock transactionally and writes the order with a `CLD-` number.
+
+The payment adapter is **not implemented**. `PAYMENT_PROVIDER_SECRET_KEY` is part of the readiness gate so a deploy cannot accidentally pretend to be live, but the route currently stops after recording the order. See `docs/CHECKOUT.md` before launch.
+
+## Content and integrations
+
+The storefront runs entirely on seed data when integrations are absent.
+
+| Integration | What it enables | Required variables |
 | --- | --- | --- |
-| Homepage | `/` | Complete — hero, departments, new arrivals, point of view, shortlist, service |
-| Collection | `/collections/[slug]` | Complete — filters, facets, sort, URL state, pagination, mobile sheet |
-| Product | `/products/[slug]` | Complete — gallery, variants, price range, specs, related |
-| Search | `/search` | Complete — server-rendered over the catalog |
-| Bag | `/cart` | Complete — quantity, removal, subtotal, local persistence |
-| Checkout | `/checkout` | **Boundary** — form validates, API returns 501 until configured |
-| Order API | `POST /api/checkout` | Validated, server-priced, stock-reserving, 501 by default |
-| Stock API | `GET /api/stock` | Live stock from Supabase when configured |
-| Upload signing | `POST /api/cloudinary/sign` | Signed Cloudinary uploads for the Studio |
-| Studio status | `/studio` | Status board for Sanity, Supabase, Cloudinary and payments |
-| Credits | `/credits` | Product photography attribution |
-| Not found | `/_not-found` | Custom 404 |
+| Sanity | Published products and collections replace the seed catalogue | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` |
+| Supabase | Server-side inventory reads and order capture | `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
+| Cloudinary | Signed uploads from the Studio, CDN product images | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_UPLOAD_TOKEN` |
+| Payment provider | The remaining checkout gate; adapter still to be built | `PAYMENT_PROVIDER_SECRET_KEY` |
 
-Department slugs: `audio`, `computing`, `mobile`, `imaging`, `gaming`. `all` is a virtual collection.
+Copy `.env.example` to `.env.local`. Studio variables live in `studio/.env.local`; see `studio/.env.example`.
 
-### Design system
+Sanity currently owns **products and collections**. The homepage composition, navigation, and editorial copy are code-driven in this build; their schemas exist in `studio/` for the next content pass but are not yet read by the storefront. The header navigation also comes from the seed collection list.
 
-- Canvas `#f2f1ec`, paper `#f8f7f3`, ink `#111110`, accent `#1e3aff`.
-- Radii 2 / 4 / 6 / 10 / 16 px; one easing curve, `cubic-bezier(0.16, 1, 0.3, 1)`.
-- `.type-display`, `.type-h1`…`.type-micro` carry the editorial scale.
-- Product photography is delivered as transparent 1200 × 1200 PNG cutouts, so devices sit directly on the canvas without plates, frames or blend modes.
-- Motion is restrained: 180–420 ms transitions, no scroll hijacking, `prefers-reduced-motion` respected.
+## Original product imagery
 
----
+The 12 product renders are original Cloud illustrations, not manufacturer photography. They are generated from `tools/cloud-products.mjs` and rendered with `tools/render-cloud-products.mjs`. The PNG and SVG files are committed so the storefront does not need the generation tools at runtime.
 
-## Content adapter
+The fonts are self-hosted under the SIL Open Font License 1.1. Licence copies are in `public/licenses/` and `src/app/fonts/`.
 
-`src/lib/content.ts` is the only place the storefront reads content.
-
-1. If `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` are set, it queries published products and collections from Sanity.
-2. The Sanity shapes are mapped to the same `Product` / `Collection` types as the seed.
-3. If Sanity is not configured, returns no products, or fails, it falls back to the seed catalog and logs one warning.
-4. Home, collection, product and search pages all use the adapter. React `cache` deduplicates the read per request.
-
-This means the site never depends on a CMS being reachable to render, and the fallback is obvious rather than a blank page. Sanity products must contain at least one variant and are filtered out otherwise.
-
-The cart, checkout validator and `/api/stock` still index the **seed** variants. Before switching the storefront to live Sanity content, mirror the Sanity variant IDs into `src/data/products.ts` or extend those modules to read the adapter — see [Known gaps](#known-gaps).
-
----
-
-## Sanity content
-
-Schemas live in `studio/schemas/`. The Studio customises its navigation into ten sections:
-
-1. **Overview** — live counts from the dataset and a pre-publish checklist.
-2. **Products** — variants, Cloudinary photography, electronics specs, filters, SEO.
-3. **Collections** — the five departments and their position in navigation.
-4. **Homepage sections** — ordered hero / product rail / editorial / service blocks.
-5. **Navigation** — announcement, header links, footer columns.
-6. **Promotions** — scheduled announcement or homepage messages.
-7. **Pages** — editorial pages with portable text.
-8. **Brand & settings** — name, currency, contact, policies.
-9. **SEO** — default title template, description, social image.
-10. **Help** — an editor's operating manual.
-
-Notable rules encoded in the schema:
-
-- A product cannot publish without at least one image, one variant, a summary, price and stock.
-- Variant IDs (`product-slug--option`) are required and treated as permanent: Supabase inventory and order lines key off them.
-- Prices are integers in cents.
-- Filter facets come from a controlled list so the collection filters do not fragment.
-- Homepage, navigation, settings and SEO are singletons; their creation is filtered out of the global “new document” menu.
-
-### Connect a Sanity project
+## Quality checks
 
 ```bash
-# 1. Create a project + production dataset at https://sanity.io/manage
-# 2. Add CORS origins for http://localhost:3000 and your production domain
-# 3. Copy studio/.env.example to studio/.env.local and fill in the project ID
-# 4. Install and run the Studio
-cd studio
-pnpm install
-pnpm dev
-# 5. Add the same project ID/dataset to .env.local for the storefront
+pnpm typecheck
+pnpm build
+pnpm seed:check
+node tools/smoke.mjs
 ```
 
-No credentials ship in this repository. The Studio will start against a placeholder project ID but cannot read or write until a real one is supplied.
+`tools/smoke.mjs` drives Chrome through the PDP → bag → cart → checkout boundary and asserts Naira totals, the disabled payment state, the 501 API response, and rejection of non-Nigerian addresses. It expects the dev server on `http://localhost:3000`.
 
-### Deploy the Studio
+For full-page screenshots at 1440 px and 390 px:
 
 ```bash
-pnpm --dir studio deploy
+node tools/capture-storefront.mjs / /collections/lighting /products/halo-smart-bulb /cart /checkout
 ```
 
-Choose a hostname (`kelvin` → `kelvin.sanity.studio`) and set `NEXT_PUBLIC_SANITY_STUDIO_URL` to that origin so the storefront's admin link points at it.
+Screenshots are written to `%TEMP%\cloud-shots` on Windows, or `SHOT_DIR` if set. The script also reports horizontal overflow.
 
-### Cloudinary uploads
+## Before launch
 
-The product image field uploads directly to Cloudinary:
-
-1. The Studio calls `POST /api/cloudinary/sign` with `x-upload-token`.
-2. The route verifies `CLOUDINARY_UPLOAD_TOKEN`, then signs `folder` + `timestamp` with the API secret.
-3. The browser uploads to Cloudinary and stores the returned `public_id` on the document.
-4. The storefront delivers `f_auto,q_auto,w_1400` variants; the Studio previews the same asset.
-
-Open **Upload settings** in the image field and paste the upload token once per browser. The token is stored in `localStorage` — it authorises uploads only and never reaches a bundle. For a multi-editor production setup, replace the shared token with a serverless function that verifies the editor's Sanity session.
-
-### Content model
-
-See [docs/CONTENT-MODEL.md](docs/CONTENT-MODEL.md) for every field, the variant contract and the editorial workflow.
-
----
-
-## Supabase commerce
-
-The SQL lives in `supabase/migrations/` and seeds 30 variant rows in `supabase/seed.sql`.
-
-| Table | Purpose |
-| --- | --- |
-| `inventory_items` | One row per variant: `on_hand`, `reserved`, `safety_stock`. |
-| `stock_movements` | Append-only audit trail: reservation, release, restock, correction, return. |
-| `orders` | Immutable header: customer snapshot, address, totals, status. |
-| `order_items` | Price/name/variant snapshots at the time of order. |
-| `customers`, `addresses` | Profiles linked to `auth.users`. |
-| `carts`, `cart_items` | Signed-in carts. Guests use the local cart. |
-
-`public.create_order(...)` locks the requested inventory rows in variant order, rejects the entire order if any line is short, writes the header and line snapshots, reserves stock and appends movements — in one transaction. Only the service role may execute it.
-
-RLS: inventory is publicly readable; customers, addresses, carts and orders are owner-scoped; orders and order items are read-only to authenticated users and cannot be inserted or mutated from the client. `stock_movements` is service-role only.
-
-### Apply
-
-```bash
-# Local Supabase (Docker required)
-supabase start
-supabase db reset          # migrations + seed
-
-# Linked project
-supabase link --project-ref <ref>
-supabase db push
-# then run supabase/seed.sql once in the SQL editor
-```
-
-Full runbook: [supabase/README.md](supabase/README.md).
-
-### Enable order capture
-
-Set on the server:
-
-```dotenv
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-PAYMENT_PROVIDER_SECRET_KEY=
-```
-
-`checkoutConfigured` requires all four. When present, the checkout form writes a real order and reserves stock. **It still does not charge a card** — payment capture has no provider adapter in this build. The UI says so on the button and in the confirmation.
-
----
-
-## Environment
-
-Copy `.env.example` to `.env.local`. Every integration is optional; each switches on only when its variables are complete.
-
-| Variable | Unlocks |
-| --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Canonical metadata and share URLs |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` / `_DATASET` | Reading published content instead of the seed |
-| `SANITY_API_READ_TOKEN` | Private datasets only |
-| `NEXT_PUBLIC_SANITY_STUDIO_URL` | Footer/admin link to the deployed Studio |
-| `NEXT_PUBLIC_SUPABASE_URL` / `_ANON_KEY` | Public Supabase client (signed-in carts, future account area) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-side stock and order capture |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `_API_SECRET` | Signed media uploads |
-| `CLOUDINARY_UPLOAD_TOKEN` | Authorises the Studio's signing request |
-| `PAYMENT_PROVIDER_SECRET_KEY` | Checkout gate — presence enables order recording, not charging |
-
-Never prefix the service-role key, API secret or upload token with `NEXT_PUBLIC_`.
-
----
-
-## Deploy
-
-### Storefront (Vercel)
-
-1. Import the repository. Framework preset: **Next.js**, root directory `.`.
-2. Install command `pnpm install`, build command `pnpm build`.
-3. Add the environment variables for the integrations you have.
-4. Set `NEXT_PUBLIC_SITE_URL` to the production origin and redeploy.
-
-The site builds with zero variables. Without them it serves the seed catalog and the checkout boundary.
-
-### Supabase
-
-Run the migrations before enabling order capture. Add the production origin to the Supabase auth redirect allow-list when you add sign-in.
-
-### Cloudinary
-
-Set the three credentials + upload token on the storefront deployment. The sign endpoint must be reachable from the Studio origin; add the storefront production URL to the Studio's upload settings.
-
-### Sanity
-
-Deploy the Studio separately (above) and add both localhost and production origins to the project's CORS list.
-
----
-
-## Scripts
-
-| Command | What it does |
-| --- | --- |
-| `pnpm dev` | Next dev server on port 3000 |
-| `pnpm build` | Production build |
-| `pnpm start` | Serve the production build |
-| `pnpm typecheck` | Storefront TypeScript |
-| `node tools/shot.mjs .shots` | Desktop/mobile screenshots and overflow checks |
-| `node tools/smoke.mjs` | Cart and checkout click-through smoke test |
-| `cd studio && pnpm install` | Install the separate Studio package |
-| `pnpm --dir studio dev` | Sanity Studio on port 3333 |
-| `pnpm --dir studio build` | Production build of the Studio |
-| `pnpm --dir studio deploy` | Deploy the Studio |
-| `pnpm --dir studio typecheck` | Studio TypeScript (after installing studio deps) |
-| `pnpm images:download` | Re-download the Commons source photography |
-| `python tools/cutout.py` | Regenerate background-removed product cutouts with rembg |
-| `python tools/cutout-manual.py` | Rebuild the planar iPad, Kindle, iPhone and Switch cutouts |
-
-`tools/fetch-one.mjs` fetches a single Commons file by title. None of these tools run during a build.
-
----
-
-## Product photography
-
-All 14 product images come from Wikimedia Commons and are attributed on `/credits` (data in `src/data/image-credits.json`). Licences are a mix of CC0, CC BY 2.0/3.0/4.0 and public domain; the credits page links to each source file and names the licence.
-
-The source photographs are converted to transparent 1200 × 1200 PNG cutouts with rembg and small device-specific crops. The original source photography remains in `public/products/` so the derivatives can be traced back to their credited sources. They are product shots of real devices, not manufacturer press renders, and they are not presented as KELVIN's own photography.
-
----
-
-## Boundaries
-
-Honest limits of this build:
-
-- **No payment capture.** Checkout validates input, reprices server-side, records an order and reserves stock, but never collects card data or charges. Without Supabase + the payment gate it returns HTTP 501 with the exact missing variables.
-- **No authentication UI.** The schema and RLS support signed-in carts and order history, but there is no sign-in screen yet. Guest carts live in `localStorage`.
-- **No order confirmation email.** That belongs with the payment/provider work.
-- **No idempotency key on `create_order`.** The form disables double submits, but a network-level retry could create a second pending order. Add an idempotency key before enabling a payment provider.
-- **Sanity is unseeded.** The schemas and Studio are complete; creating a project and entering the first products is a manual step. The storefront therefore serves the seed catalog until then.
-- **Studio uploads need a token.** There is no magic link between Sanity auth and the storefront sign endpoint; the shared token is a deliberate, documented stopgap.
-- **No automated test suite.** The build, typecheck, route checks and visual passes are documented in [docs/QA.md](docs/QA.md). There are no unit or e2e tests yet.
-- **Seed and Sanity variants must agree.** See [Known gaps](#known-gaps).
-
----
-
-## Known gaps
-
-1. **Cart/checkout still read the seed catalog.** `src/components/cart-provider.tsx`, `src/lib/checkout.ts` and `src/app/api/stock/route.ts` use `src/data/products.ts`. If you publish a different catalog in Sanity, mirror the variant IDs and prices into the seed, or refactor those modules to await `getCatalog()`. This is the next backend task.
-2. **Header/footer navigation is static.** `src/components/site-header.tsx` and `site-footer.tsx` use the seed collections rather than the `navigation` document. The Studio schema for it is ready.
-3. **No promotion rendering.** The `promotion` schema exists; the storefront does not yet read it.
-4. **No account screens.** Supabase auth, carts and order history are schema-ready but unbuilt.
-
-None of these affect the demo catalog: it is the seed, and it is complete.
-
----
-
-## Structure
-
-```
-src/
-  app/                 routes, API handlers, global CSS
-  components/          header, footer, cart, product, collection controls
-  data/                seed catalog, collections, image credits
-  lib/                 catalog query, content adapter, checkout validation,
-                       env status, Supabase/Cloudinary helpers, formatting
-studio/                separate Sanity Studio package
-  schemas/             document + object schemas
-  components/          Overview, Help, logo, signed Cloudinary input
-  structure.ts         ten-section Studio navigation
-supabase/
-  migrations/          schema, create_order, RLS
-  seed.sql             30 inventory rows
-docs/                  architecture, content model, checkout, QA
-tools/                 image staging scripts
-public/products/       14 transparent cutouts plus credited source photography
-```
-
----
+- Replace the placeholder contact details in `src/data/site.ts`: `hello@cloud.ng` and `+234 700 000 0000` are not live support channels.
+- Set the final domain in `NEXT_PUBLIC_SITE_URL` and update metadata/share assets.
+- Create the Sanity project, add CORS origins, and seed or migrate content.
+- Apply the Supabase migrations, run `supabase/seed.sql`, and verify the `create_order` function in a real Postgres instance. The SQL in this repository has not been executed in this environment because Docker, the Supabase CLI, and `psql` are unavailable.
+- Implement and test the payment adapter before accepting orders.
+- Confirm delivery, returns, warranty, and customs language with the operating team.
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md) — data ownership, request paths, trust boundaries.
-- [Content model](docs/CONTENT-MODEL.md) — schema fields, variant contract, editorial workflow.
-- [Checkout](docs/CHECKOUT.md) — validation, SQL transaction, payment integration plan.
-- [QA](docs/QA.md) — what was tested and how to repeat it.
-
----
-
-## Licence
-
-The storefront code is original work. Product names and marks belong to their manufacturers. Product photography is credited on `/credits` under the licences listed there.
+- [Architecture](docs/ARCHITECTURE.md)
+- [Checkout and order capture](docs/CHECKOUT.md)
+- [Content model](docs/CONTENT-MODEL.md)
+- [Brand and interface notes](docs/BRAND.md)
+- [QA runbook](docs/QA.md)
+- [Supabase setup](supabase/README.md)

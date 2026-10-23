@@ -7,7 +7,7 @@ type UploadConfig = {
   token: string;
 };
 
-const STORAGE_KEY = "kelvin.cloudinary.upload";
+const STORAGE_KEY = "cloud.cloudinary.upload";
 const DEFAULT_CONFIG: UploadConfig = {
   endpoint: "http://localhost:3000/api/cloudinary/sign",
   token: "",
@@ -224,7 +224,7 @@ export function CloudinaryImageInput(props: StringInputProps) {
                 aria-label="Storefront signing endpoint"
                 value={config.endpoint}
                 onChange={(event) => saveConfig({ ...config, endpoint: event.currentTarget.value })}
-                placeholder="https://kelvin.store/api/cloudinary/sign"
+                placeholder="https://cloud.ng/api/cloudinary/sign"
               />
             </Stack>
             <Stack space={2}>

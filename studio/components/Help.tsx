@@ -3,7 +3,7 @@ import { Box, Card, Heading, Stack, Text } from "@sanity/ui";
 const guide = [
   {
     title: "1 · Start with collections, not products",
-    body: "Five departments are already defined. Set position 1–5 and keep the eyebrow format “01 / Audio”. The storefront sorts navigation and the homepage rail by that number.",
+    body: "Four collections are already defined. Set position 1–4 and keep the eyebrow format “01 / Lighting”. The storefront sorts the homepage category grid by that number; header navigation is currently code-driven. Each collection also needs a colour block.",
   },
   {
     title: "2 · A product is not publishable without media and a variant",
@@ -14,20 +14,20 @@ const guide = [
     body: "The ID (product-slug--option) is written into Supabase inventory_items and order_items. Renaming it after an order exists breaks the stock link. Add a new variant instead.",
   },
   {
-    title: "4 · Prices are integers in cents",
-    body: "$549.00 is 54900. The storefront and checkout both work in minor units, and the checkout route recomputes totals from the catalog — never from the browser.",
+    title: "4 · Prices are integers in kobo",
+    body: "₦18,500 is 1850000. The storefront and checkout both work in minor units, and the checkout route recomputes totals from the catalog — never from the browser.",
   },
   {
     title: "5 · Filter facets must come from the controlled list",
-    body: "Type and connectivity drive the collection filters. Adding “Over-Ear” when the rest is “Over-ear” creates a second, empty facet. Copy the spelling from an existing product.",
+    body: "Type, room and fit drive the collection filters. Adding “Floor Lamp” when the rest is “Floor lamp” creates a second, empty facet. Copy the spelling from an existing product.",
   },
   {
     title: "6 · Photography is signed, not pasted",
     body: "Upload through the image field. It requests a signature from the storefront, uploads directly to Cloudinary, and stores the public ID. The light box in the Studio previews it.",
   },
   {
-    title: "7 · Homepage sections are a stack",
-    body: "Reorder hero, rails, editorial bands and the service strip. Empty sections are skipped by the storefront. A hero must reference a product so the price and caption stay honest.",
+    title: "7 · Some schemas are not live yet",
+    body: "Homepage sections, navigation, promotions and standalone pages are prepared for a later content pass. The current storefront composes those areas in code and reads only published products and collections, so editing the prepared documents will not change the live site.",
   },
   {
     title: "8 · Publishing is explicit",
@@ -40,8 +40,8 @@ export function Help() {
     <Box padding={[4, 5, 6]} style={{ maxWidth: 900, margin: "0 auto" }}>
       <Stack space={6}>
         <Stack space={4}>
-          <Text size={1} muted style={{ letterSpacing: "0.13em", textTransform: "uppercase" }}>
-            KELVIN / Help
+          <Text size={1} muted style={{ fontStyle: "italic" }}>
+            Cloud / Help
           </Text>
           <Heading size={4} style={{ letterSpacing: "-0.035em" }}>
             How this studio works.

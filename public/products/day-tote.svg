@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<defs>
+  <filter id="floor" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="26"/>
+  </filter>
+  <filter id="lift" x="-40%" y="-40%" width="180%" height="200%">
+    <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#101318" flood-opacity="0.16"/>
+  </filter>
+  <filter id="lift-soft" x="-40%" y="-40%" width="180%" height="200%">
+    <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#101318" flood-opacity="0.12"/>
+  </filter>
+  <linearGradient id="paper" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#fcfaf4"/>
+    <stop offset="0.56" stop-color="#efe9dd"/>
+    <stop offset="1" stop-color="#dcd3c4"/>
+  </linearGradient>
+  <linearGradient id="paper-side" x1="0" y1="0" x2="1" y2="0.5">
+    <stop offset="0" stop-color="#cfc5b5"/>
+    <stop offset="1" stop-color="#aaa092"/>
+  </linearGradient>
+  <linearGradient id="ink" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#3b4047"/>
+    <stop offset="0.55" stop-color="#1a1d21"/>
+    <stop offset="1" stop-color="#0c0e10"/>
+  </linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#8f897e"/>
+    <stop offset="0.18" stop-color="#f1ede5"/>
+    <stop offset="0.46" stop-color="#b7b0a3"/>
+    <stop offset="0.72" stop-color="#ece7dd"/>
+    <stop offset="1" stop-color="#8b857a"/>
+  </linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#4561ff"/>
+    <stop offset="1" stop-color="#1732d8"/>
+  </linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#f3f8ff"/>
+    <stop offset="0.55" stop-color="#dbe8fb"/>
+    <stop offset="1" stop-color="#bdcee8"/>
+  </linearGradient>
+  <linearGradient id="sand" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#eee1c9"/>
+    <stop offset="0.6" stop-color="#ddcdb2"/>
+    <stop offset="1" stop-color="#c5b393"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0.1" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#fffef9" stop-opacity="0.98"/>
+    <stop offset="0.5" stop-color="#f4efe4" stop-opacity="0.94"/>
+    <stop offset="1" stop-color="#cfc6b6" stop-opacity="0.9"/>
+  </linearGradient>
+  <radialGradient id="warm-glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffd889" stop-opacity="0.55"/>
+    <stop offset="0.5" stop-color="#ffd889" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#ffd889" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="white-glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="fade-down" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe1a0" stop-opacity="0.5"/>
+    <stop offset="1" stop-color="#ffe1a0" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="cloth" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#f8f5ee"/>
+    <stop offset="0.6" stop-color="#e9e3d7"/>
+    <stop offset="1" stop-color="#d5ccbd"/>
+  </linearGradient>
+  <linearGradient id="hood" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#e5d8c2"/>
+    <stop offset="0.6" stop-color="#d3c2a8"/>
+    <stop offset="1" stop-color="#b9a789"/>
+  </linearGradient>
+  <linearGradient id="canvas" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#efe6d2"/>
+    <stop offset="0.6" stop-color="#e0d2b8"/>
+    <stop offset="1" stop-color="#c8b796"/>
+  </linearGradient>
+</defs>
+    <ellipse cx="600" cy="966" rx="276" ry="36" fill="#111418" opacity="0.1" filter="url(#floor)"/>
+    <g filter="url(#lift-soft)">
+      <path d="M452 432C452 288 524 244 564 244C600 244 616 286 616 420" fill="none" stroke="#b59a6d" stroke-width="22" stroke-linecap="round"/>
+      <path d="M584 420C584 286 600 244 636 244C676 244 748 288 748 432" fill="none" stroke="#b59a6d" stroke-width="22" stroke-linecap="round"/>
+      <path d="M382 430H818L846 890C712 928 488 928 354 890Z" fill="url(#canvas)" stroke="#c3b193" stroke-width="3"/>
+      <path d="M382 430H818L814 476H386Z" fill="#d2bea0" opacity="0.6"/>
+      <path d="M386 476H814" stroke="#b5a083" stroke-width="3" stroke-dasharray="5 5"/>
+      <path d="M412 498C400 638 398 766 406 878M788 498C800 638 802 766 794 878" fill="none" stroke="#c4b193" stroke-width="3" opacity="0.6"/>
+      <path d="M452 430V886M748 430V886" stroke="#c4b193" stroke-width="2" opacity="0.45"/>
+      <path d="M566 430V444M634 430V444" stroke="#8d7a5f" stroke-width="4"/>
+      <text x="600" y="652" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="700" letter-spacing="-2" fill="#2743ff">cloud.</text>
+      <text x="600" y="696" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="2.6" fill="#6e6659">THE GOOD STUFF, BROUGHT HOME.</text>
+      <path d="M470 748H730" stroke="#b8a586" stroke-width="2" stroke-dasharray="3 5" opacity="0.65"/>
+      <text x="600" y="826" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="3" fill="#9a8769">N° 01 / LAGOS</text>
+    </g></svg>

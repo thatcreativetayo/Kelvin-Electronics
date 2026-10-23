@@ -4,13 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // Click-through smoke test for the local-first cart. This intentionally uses
-// the same CDP plumbing as tools/shot.mjs instead of adding a browser test
-// dependency to the storefront.
+// raw CDP instead of adding a browser test dependency to the storefront.
 
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const PORT = 9334;
 const BASE = "http://localhost:3000";
-const profile = mkdtempSync(join(tmpdir(), "kelvin-smoke-"));
+const profile = mkdtempSync(join(tmpdir(), "cloud-smoke-"));
 
 const chrome = spawn(
   CHROME,
@@ -102,43 +101,59 @@ await send("Page.enable");
 await send("Runtime.enable");
 
 // 1. Add to bag from a PDP.
-await navigate("/products/airpods-pro");
+await navigate("/products/halo-smart-bulb");
 await waitFor("[...document.querySelectorAll('button')].some((button) => button.textContent.includes('Add to bag'))");
 await evaluate(
   `[...document.querySelectorAll('button')].find((button) => button.textContent.includes('Add to bag')).click()`,
 );
-await waitFor("JSON.parse(localStorage.getItem('kelvin.cart.v1') || '[]').length === 1");
-const afterAdd = await evaluate(`JSON.parse(localStorage.getItem('kelvin.cart.v1'))`);
-checks.push(assert("add to bag stores a line", afterAdd.length === 1 && afterAdd[0].variantId === "airpods-pro--white", afterAdd));
+await waitFor("JSON.parse(localStorage.getItem('cloud.cart.v1') || '[]').length === 1");
+const afterAdd = await evaluate(`JSON.parse(localStorage.getItem('cloud.cart.v1'))`);
+checks.push(
+  assert(
+    "add to bag stores a line",
+    afterAdd.length === 1 && afterAdd[0].variantId === "halo-smart-bulb--single",
+    afterAdd,
+  ),
+);
 
 // 2. Quantity stepper on the cart page.
 await navigate("/cart");
 await waitFor("document.querySelector('button[aria-label^=\"Increase quantity for\"]') !== null");
 await evaluate(`document.querySelector('button[aria-label^="Increase quantity for"]').click()`);
 await sleep(400);
-const afterIncrease = await evaluate(`JSON.parse(localStorage.getItem('kelvin.cart.v1'))`);
+const afterIncrease = await evaluate(`JSON.parse(localStorage.getItem('cloud.cart.v1'))`);
 const subtotalAfterIncrease = await evaluate(
   `document.querySelector('[aria-label="Order total"] dd')?.textContent.trim()`,
 );
 checks.push(assert("quantity increment persists", afterIncrease[0].quantity === 2, afterIncrease));
-checks.push(assert("subtotal follows quantity", subtotalAfterIncrease === "$498", subtotalAfterIncrease));
+checks.push(
+  assert(
+    "subtotal follows quantity in Naira",
+    subtotalAfterIncrease?.includes("37,000") === true,
+    subtotalAfterIncrease,
+  ),
+);
 
 // 3. Remove the line.
 await evaluate(
   `[...document.querySelectorAll('button')].find((button) => button.textContent.trim() === 'Remove').click()`,
 );
-await waitFor("JSON.parse(localStorage.getItem('kelvin.cart.v1') || '[]').length === 0");
-const emptyCopy = await evaluate(`document.body.innerText.includes('There is nothing here yet.')`);
+await waitFor("JSON.parse(localStorage.getItem('cloud.cart.v1') || '[]').length === 0");
+const emptyCopy = await evaluate(`document.body.innerText.includes('Your bag is empty.')`);
 checks.push(assert("remove clears the bag", emptyCopy === true, emptyCopy));
 
 // 4. Checkout is an honest boundary when no integrations are configured.
 await evaluate(
-  `localStorage.setItem('kelvin.cart.v1', JSON.stringify([{ variantId: 'airpods-max--silver', productSlug: 'airpods-max', quantity: 1 }]))`,
+  `localStorage.setItem('cloud.cart.v1', JSON.stringify([{ variantId: 'halo-smart-bulb--single', productSlug: 'halo-smart-bulb', quantity: 1 }]))`,
 );
 await navigate("/checkout");
-await waitFor("document.querySelector('button[type=submit]') !== null");
+await waitFor(
+  "[...document.querySelectorAll('button')].some((button) => button.textContent.includes('Payment not connected'))",
+);
 const submit = await evaluate(`(() => {
-  const button = document.querySelector('button[type=submit]');
+  const button = [...document.querySelectorAll('button')].find((candidate) =>
+    candidate.textContent.includes('Payment not connected'),
+  );
   return { disabled: button.disabled, text: button.textContent.trim() };
 })()`);
 checks.push(
@@ -146,6 +161,41 @@ checks.push(
     "unconfigured checkout is disabled",
     submit.disabled === true && submit.text === "Payment not connected",
     submit,
+  ),
+);
+
+// 5. The server boundary is explicit too, and rejects non-Nigerian delivery
+// addresses before it looks at integration configuration.
+const order = {
+  items: [{ variantId: "halo-smart-bulb--single", quantity: 1 }],
+  customer: { email: "qa@cloud.ng", firstName: "QA", lastName: "Cloud" },
+  address: { line1: "1 Test Street", city: "Lagos", country: "Nigeria" },
+};
+const boundary = await fetch(`${BASE}/api/checkout`, {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify(order),
+});
+const boundaryBody = await boundary.json();
+checks.push(
+  assert(
+    "unconfigured API returns 501",
+    boundary.status === 501 && boundaryBody.error === "integration_not_configured",
+    { status: boundary.status, body: boundaryBody },
+  ),
+);
+
+const abroad = await fetch(`${BASE}/api/checkout`, {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ ...order, address: { ...order.address, country: "Ghana" } }),
+});
+const abroadBody = await abroad.json();
+checks.push(
+  assert(
+    "non-Nigerian delivery is rejected",
+    abroad.status === 400 && /Nigeria only/.test(abroadBody.message ?? ""),
+    { status: abroad.status, body: abroadBody },
   ),
 );
 

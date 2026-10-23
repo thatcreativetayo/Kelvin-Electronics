@@ -7,7 +7,7 @@ import { getCatalog } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Search",
-  description: "Search the KELVIN catalog by product, brand or specification.",
+  description: "Search Cloud for electronics, home essentials and everyday wear.",
 };
 
 export default async function SearchPage({
@@ -36,18 +36,23 @@ export default async function SearchPage({
     : null;
 
   return (
-    <div className="shell pt-8 pb-20 md:pt-10 md:pb-24">
-      <p className="type-micro text-muted">Search</p>
-      <h1 className="type-h1 mt-3">{q ? `“${q}”` : "Find a product."}</h1>
+    <div className="shell pt-7 pb-20 md:pt-9 md:pb-24">
+      <p className="type-eyebrow">Search</p>
+      <h1 className="type-h1 mt-2">{q ? `Results for "${q}"` : "Find a product."}</h1>
 
-      <form action="/search" method="get" role="search" className="mt-8 flex max-w-[640px] items-center gap-3 border-b border-ink pb-2">
-        <Search size={18} className="shrink-0 text-muted" strokeWidth={1.6} />
+      <form
+        action="/search"
+        method="get"
+        role="search"
+        className="card mt-6 flex max-w-[640px] items-center gap-2 p-2"
+      >
+        <Search size={18} className="ml-2 shrink-0 text-muted" strokeWidth={1.8} />
         <input
           type="search"
           name="q"
           defaultValue={q}
-          placeholder="Search products, brands, specifications"
-          className="h-11 w-full bg-transparent text-[16px] outline-none placeholder:text-faint"
+          placeholder="Search products"
+          className="h-10 w-full bg-transparent px-1 text-[16px] outline-none placeholder:text-muted"
           aria-label="Search products"
         />
         <button type="submit" className="btn btn-sm shrink-0">
@@ -57,29 +62,31 @@ export default async function SearchPage({
 
       {result ? (
         <>
-          <div className="mt-8 flex items-baseline justify-between border-b border-line pb-3">
-            <p className="type-small text-muted">
-              {result.total} {result.total === 1 ? "result" : "results"} for “{q}”
+          <div className="mt-8 flex items-baseline justify-between border-b border-border pb-3">
+            <p className="text-sm text-muted">
+              {result.total} {result.total === 1 ? "result" : "results"} for "{q}"
             </p>
-            <Link href="/collections/all" className="type-micro text-muted hover:text-ink">
+            <Link
+              href="/collections/all"
+              className="text-[13px] font-medium text-muted transition-colors duration-150 hover:text-ink"
+            >
               Browse everything
             </Link>
           </div>
 
           {result.items.length === 0 ? (
-            <div className="mt-8 border border-line bg-paper px-6 py-16 text-center">
-              <p className="type-micro text-muted">No matches</p>
-              <h2 className="mt-3 text-xl font-medium tracking-[-0.02em]">Nothing matches that search.</h2>
-              <p className="mx-auto mt-2 max-w-[46ch] text-sm text-muted">
-                Try a brand (Apple, Sony, Fujifilm), a category (audio, imaging) or a specification such as
-                “full-frame”.
+            <div className="card mt-8 px-6 py-16 text-center">
+              <p className="type-eyebrow">No matches</p>
+              <h2 className="type-h3 mt-3">Nothing matches that search.</h2>
+              <p className="mx-auto mt-2 max-w-[46ch] text-sm leading-relaxed text-muted">
+                Try a room, a product type or a material. The full catalog is a short one.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2">
                 {collections.map((collection) => (
                   <Link
                     key={collection.slug}
                     href={`/collections/${collection.slug}`}
-                    className="rounded-[var(--radius-xs)] border border-line-strong bg-paper px-2.5 py-1.5 text-xs hover:border-ink"
+                    className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-muted transition-colors duration-150 hover:border-ink hover:text-ink"
                   >
                     {collection.name}
                   </Link>
@@ -87,7 +94,11 @@ export default async function SearchPage({
               </div>
             </div>
           ) : (
-            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-5">
+            <div
+              className={`mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 ${
+                result.items.length > 3 ? "lg:grid-cols-4" : ""
+              }`}
+            >
               {result.items.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -95,18 +106,21 @@ export default async function SearchPage({
           )}
         </>
       ) : (
-        <div className="mt-10 grid gap-10 md:grid-cols-12">
+        <div className="mt-8 grid gap-10 md:grid-cols-12">
           <div className="md:col-span-5">
-            <p className="text-sm leading-relaxed text-ink-2">
-              Every product we stock is in one of five departments. If you are not sure where to start, the
-              shortlist on the homepage is a good place.
+            <p className="text-sm leading-relaxed text-muted">
+              Every product we stock sits in one of our categories. If you are not sure where to start, the full
+              catalog is a short one.
             </p>
-            <Link href="/#shortlist" className="type-micro mt-5 inline-flex items-center gap-1.5 text-accent">
-              The shortlist
-              <ArrowRight size={12} strokeWidth={2} />
+            <Link
+              href="/collections/all"
+              className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-primary-text"
+            >
+              Shop all products
+              <ArrowRight size={13} strokeWidth={2} />
             </Link>
           </div>
-          <ul className="md:col-span-7 divide-y divide-line border-y border-line">
+          <ul className="divide-y divide-border border-y border-border md:col-span-7">
             {collections.map((collection) => (
               <li key={collection.slug}>
                 <Link
@@ -116,7 +130,7 @@ export default async function SearchPage({
                   <span className="text-lg font-medium tracking-[-0.02em]">{collection.name}</span>
                   <span className="flex items-center gap-3 text-xs text-muted">
                     {collection.tagline}
-                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                    <ArrowRight size={14} className="transition-transform duration-150 group-hover:translate-x-1" />
                   </span>
                 </Link>
               </li>

@@ -8,14 +8,14 @@ export const seoDefaults = defineType({
     defineField({
       name: "defaultTitle",
       type: "string",
-      initialValue: "KELVIN — Precision electronics",
+      initialValue: "Cloud — The good stuff, brought home",
       validation: (rule) => rule.required().max(60),
     }),
     defineField({
       name: "titleTemplate",
       type: "string",
-      description: "Use %s for the page title, e.g. “%s · KELVIN”.",
-      initialValue: "%s · KELVIN",
+      description: "Use %s for the page title, e.g. “%s · Cloud”.",
+      initialValue: "%s · Cloud",
       validation: (rule) => rule.required().max(40),
     }),
     defineField({
@@ -37,7 +37,7 @@ export const seoDefaults = defineType({
     defineField({
       name: "organisationName",
       type: "string",
-      initialValue: "Kelvin Electronics Ltd",
+      initialValue: "Cloud Retail Ltd",
     }),
   ],
   preview: {

@@ -106,7 +106,7 @@ function mapProduct(doc: SanityProductDoc): Product | null {
     id: doc.id,
     slug: doc.slug,
     name: doc.name,
-    brand: doc.brand || "—",
+    brand: doc.brand || "Cloud",
     collection: doc.collection,
     summary: doc.summary ?? "",
     description: doc.description?.length ? doc.description : [doc.summary ?? ""],
@@ -124,15 +124,14 @@ function mapProduct(doc: SanityProductDoc): Product | null {
 
 function mapCollection(doc: SanityCollectionDoc): Collection | null {
   if (!doc.slug || !doc.name) return null;
-  const seedImage =
-    seedCollections.find((collection) => collection.slug === doc.slug)?.image ?? "/products/airpods-max.png";
+  const seedCollection = seedCollections.find((collection) => collection.slug === doc.slug);
   return {
     slug: doc.slug as CollectionSlug,
     name: doc.name,
     eyebrow: doc.eyebrow || doc.name,
     tagline: doc.tagline || "",
     description: doc.description || "",
-    image: imageUrl(doc.image?.publicId, doc.image?.fallbackUrl || seedImage),
+    image: imageUrl(doc.image?.publicId, doc.image?.fallbackUrl || seedCollection?.image || "/products/halo-bulb.png"),
   };
 }
 

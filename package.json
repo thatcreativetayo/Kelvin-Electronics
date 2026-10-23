@@ -1,5 +1,5 @@
 {
-  "name": "kelvin-store",
+  "name": "cloud-store",
   "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@11.8.0",
@@ -8,14 +8,13 @@
     "build": "next build",
     "start": "next start --port 3000",
     "typecheck": "tsc --noEmit",
-    "images:candidates": "node tools/fetch-images.mjs candidates",
-    "images:download": "node tools/fetch-images.mjs download"
+    "seed:check": "node tools/check-seed.mjs",
+    "products:build": "node tools/cloud-products.mjs && node tools/render-cloud-products.mjs"
   },
   "dependencies": {
     "@sanity/client": "^8.9.0",
     "@supabase/supabase-js": "^2.118.0",
     "cloudinary": "^2.11.0",
-    "geist": "^1.8.1",
     "lucide-react": "^1.59.0",
     "next": "16.4.2",
     "next-sanity": "^13.3.4",

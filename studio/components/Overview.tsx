@@ -21,17 +21,17 @@ const sections = [
   {
     href: "/structure/collections",
     title: "Collections",
-    body: "The five departments. Position controls the header nav and the homepage rail.",
+    body: "The four collections. Position controls the homepage category grid.",
   },
   {
     href: "/structure/homepage-sections",
     title: "Homepage sections",
-    body: "Drag to reorder the hero, product rails, editorial bands and service strip.",
+    body: "Prepared for a later pass. The current storefront homepage is composed in code.",
   },
   {
     href: "/structure/navigation",
     title: "Navigation",
-    body: "Announcement bar, header links and footer columns. The storefront falls back to local defaults if this is empty.",
+    body: "Prepared for a later pass. The storefront currently uses its code-driven header and footer.",
   },
 ];
 
@@ -67,8 +67,8 @@ export function Overview() {
     <Box padding={[4, 5, 6]} style={{ maxWidth: 1080, margin: "0 auto" }}>
       <Stack space={6}>
         <Stack space={4}>
-          <Text size={1} style={{ fontFamily: "monospace", letterSpacing: "0.13em", textTransform: "uppercase" }} muted>
-            KELVIN / Content operations
+          <Text size={1} style={{ fontStyle: "italic" }} muted>
+            Cloud / Content operations
           </Text>
           <Heading size={4} style={{ letterSpacing: "-0.035em" }}>
             Good morning. Here is the state of the store.
@@ -89,7 +89,7 @@ export function Overview() {
           ].map((stat) => (
             <Card key={stat.label} padding={4} border radius={2} tone="transparent">
               <Stack space={3}>
-                <Text size={0} muted style={{ letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                <Text size={0} muted>
                   {stat.label}
                 </Text>
                 <Heading size={4} style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -171,7 +171,7 @@ export function Overview() {
 
 function FlexHeading() {
   return (
-    <Text size={0} muted style={{ letterSpacing: "0.13em", textTransform: "uppercase" }}>
+    <Text size={0} muted>
       Sections
     </Text>
   );

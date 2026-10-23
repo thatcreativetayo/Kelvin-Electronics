@@ -21,7 +21,7 @@ export function QuantityStepper({
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-[var(--radius-sm)] border border-line-strong bg-paper",
+        "inline-flex items-center rounded-lg border border-border bg-surface",
         compact ? "h-8" : "h-11",
       )}
       role="group"
@@ -30,14 +30,14 @@ export function QuantityStepper({
       <button
         type="button"
         className={cn(
-          "grid place-items-center text-ink transition-colors hover:bg-canvas disabled:opacity-35",
+          "grid place-items-center text-ink transition-colors duration-150 hover:bg-bg disabled:opacity-35",
           compact ? "h-8 w-8" : "h-11 w-11",
         )}
         onClick={() => onChange(Math.max(min, value - 1))}
         disabled={value <= min}
         aria-label={`Decrease ${label.toLowerCase()}`}
       >
-        <Minus size={compact ? 12 : 14} strokeWidth={1.75} />
+        <Minus size={compact ? 12 : 14} strokeWidth={1.9} />
       </button>
       <span
         className={cn("num text-center tabular-nums", compact ? "w-6 text-xs" : "w-8 text-sm")}
@@ -48,14 +48,14 @@ export function QuantityStepper({
       <button
         type="button"
         className={cn(
-          "grid place-items-center text-ink transition-colors hover:bg-canvas disabled:opacity-35",
+          "grid place-items-center text-ink transition-colors duration-150 hover:bg-bg disabled:opacity-35",
           compact ? "h-8 w-8" : "h-11 w-11",
         )}
         onClick={() => onChange(Math.min(max, value + 1))}
         disabled={value >= max}
         aria-label={`Increase ${label.toLowerCase()}`}
       >
-        <Plus size={compact ? 12 : 14} strokeWidth={1.75} />
+        <Plus size={compact ? 12 : 14} strokeWidth={1.9} />
       </button>
     </div>
   );

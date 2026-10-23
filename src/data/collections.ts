@@ -1,51 +1,46 @@
 import type { Collection } from "@/lib/types";
 
+/**
+ * Seed categories. The storefront reads collections from the catalogue, so
+ * new categories added in Sanity need no code changes here.
+ */
 export const collections: Collection[] = [
   {
-    slug: "audio",
-    name: "Audio",
-    eyebrow: "01 / Audio",
-    tagline: "Quiet, on purpose.",
+    slug: "lighting",
+    name: "Lighting",
+    eyebrow: "Lighting",
+    tagline: "Better light, quietly.",
     description:
-      "Headphones, earbuds and speakers chosen for tuning rather than marketing. Every model here is one we would keep on our own desk.",
-    image: "/products/airpods-max.png",
+      "Bulbs, lamps and strips that make a room feel finished. Warm where it matters, bright where you need it, and simple enough to live with every day.",
+    image: "/products/halo-bulb.png",
   },
   {
-    slug: "computing",
-    name: "Computing",
-    eyebrow: "02 / Computing",
-    tagline: "The quiet workhorses.",
+    slug: "power",
+    name: "Power",
+    eyebrow: "Power",
+    tagline: "The quiet infrastructure.",
     description:
-      "Machines and input devices for people who spend their day inside them. Sensible ports, real key travel, no gimmicks.",
-    image: "/products/macbook-air.png",
+      "The plugs, strips and cubes that keep everything else running. Proper surge protection, useful port layouts and no cable spaghetti.",
+    image: "/products/plug-mini.png",
   },
   {
-    slug: "mobile",
-    name: "Mobile",
-    eyebrow: "03 / Mobile",
-    tagline: "Small things, made well.",
+    slug: "kitchen",
+    name: "Kitchen",
+    eyebrow: "Kitchen",
+    tagline: "Daily work, made easier.",
     description:
-      "Phones, tablets and readers for the hours away from a desk. We stock fewer of them so each one earns its place.",
-    image: "/products/iphone-15-pro.png?v=3",
+      "Small appliances for the meals you actually make. Fewer modes, better controls, and parts that are easy to clean after a long day.",
+    image: "/products/kettle-one.png",
   },
   {
-    slug: "imaging",
-    name: "Imaging",
-    eyebrow: "04 / Imaging",
-    tagline: "For people who look twice.",
+    slug: "wear",
+    name: "Wear",
+    eyebrow: "Wear",
+    tagline: "Off-duty, considered.",
     description:
-      "Mirrorless bodies with honest colour science and controls you can learn by touch. Lenses and bodies sold separately.",
-    image: "/products/fujifilm-x-t5.png",
-  },
-  {
-    slug: "gaming",
-    name: "Gaming",
-    eyebrow: "05 / Gaming",
-    tagline: "Play, without the spectacle.",
-    description:
-      "Consoles, handhelds and controllers that respect your time. Chosen for build quality first, frame rates second.",
-    image: "/products/dualsense.png",
+      "The first Cloud Wear capsule: heavyweight cotton, a roomy hoodie and a canvas tote. Made to be worn hard and washed often.",
+    image: "/products/everyday-tee.png",
   },
 ];
 
-export const collectionBySlug = (slug: string) => collections.find((c) => c.slug === slug);
+export const collectionBySlug = (slug: string) => collections.find((collection) => collection.slug === slug);

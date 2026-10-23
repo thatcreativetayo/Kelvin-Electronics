@@ -50,21 +50,21 @@ export default function StudioPage() {
         <Link href="/" className="hover:text-ink">
           Home
         </Link>
-        <span className="mx-1.5 text-faint">/</span>
+        <span className="mx-1.5 text-muted">/</span>
         <span className="text-ink">Store admin</span>
       </nav>
 
-      <header className="mt-8 grid gap-8 border-b border-line pb-10 md:grid-cols-12">
+      <header className="mt-8 grid gap-8 border-b border-border pb-10 md:grid-cols-12">
         <div className="md:col-span-7">
-          <p className="type-micro text-muted">Back office</p>
-          <h1 className="type-h1 mt-3">
-            The studio is
+          <p className="type-eyebrow text-muted">Back office</p>
+          <h1 className="type-h1 mt-2">
+            Content lives
             <br />
-            a separate app.
+            in the studio.
           </h1>
         </div>
         <div className="md:col-span-5">
-          <p className="text-sm leading-relaxed text-ink-2">
+          <p className="text-sm leading-relaxed text-muted">
             Sanity Studio lives in <code className="font-mono text-[12px]">studio/</code> so that schema changes
             deploy without rebuilding the storefront. The storefront reads published content when Sanity is
             configured, and falls back to the local seed catalog otherwise.
@@ -99,11 +99,11 @@ export default function StudioPage() {
               },
             ].map((step, index) => (
               <li key={step.title} className="grid grid-cols-[28px_1fr] gap-3">
-                <span className="font-mono text-xs text-faint">{String(index + 1).padStart(2, "0")}</span>
+                <span className="font-mono text-xs text-muted">{String(index + 1).padStart(2, "0")}</span>
                 <div>
                   <h3 className="text-sm font-medium">{step.title}</h3>
-                  <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{step.body}</p>
-                  <pre className="mt-3 overflow-x-auto rounded-[var(--radius-sm)] border border-line bg-paper px-3 py-2.5 font-mono text-[11px] leading-relaxed text-ink-2">
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted">{step.body}</p>
+                  <pre className="mt-3 overflow-x-auto rounded-lg border border-border bg-surface px-3 py-2.5 font-mono text-[11px] leading-relaxed text-muted">
                     {step.code}
                   </pre>
                 </div>
@@ -111,7 +111,7 @@ export default function StudioPage() {
             ))}
           </ol>
 
-          <p className="mt-8 border-l-2 border-line-strong pl-4 text-xs leading-relaxed text-muted">
+          <p className="mt-8 border-l-2 border-border pl-4 text-xs leading-relaxed text-muted">
             The storefront does not ship Sanity credentials. Nothing here claims a live project until the
             environment variables are present — the status board to the right reads the actual process
             environment.
@@ -120,14 +120,14 @@ export default function StudioPage() {
 
         <aside className="lg:col-span-5" aria-label="Integration status">
           <h2 className="type-micro text-muted">Integration status</h2>
-          <ul className="mt-5 divide-y divide-line border-y border-line">
+          <ul className="mt-5 divide-y divide-border border-y border-border">
             {rows.map((row) => (
               <li key={row.label} className="py-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-sm font-medium">{row.label}</h3>
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${
-                      row.ready ? "bg-success/10 text-success" : "bg-warn/10 text-warn"
+                    className={`type-micro inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 ${
+                      row.ready ? "bg-success/10 text-success" : "bg-primary/10 text-primary-text"
                     }`}
                   >
                     {row.ready ? <Check size={10} strokeWidth={2.5} /> : <Minus size={10} strokeWidth={2.5} />}
@@ -138,7 +138,7 @@ export default function StudioPage() {
                 {!row.ready && (
                   <ul className="mt-2.5 space-y-1">
                     {row.vars.map((variable) => (
-                      <li key={variable} className="font-mono text-[10.5px] text-faint">
+                      <li key={variable} className="font-mono text-[10.5px] text-muted">
                         {variable}
                       </li>
                     ))}
@@ -150,7 +150,7 @@ export default function StudioPage() {
 
           <a
             href={sanityEnv.studioUrl}
-            className="btn btn-outline mt-6 w-full"
+            className="btn btn-secondary mt-6 w-full"
             target={sanityEnv.studioUrl.startsWith("http") ? "_blank" : undefined}
             rel="noreferrer noopener"
           >

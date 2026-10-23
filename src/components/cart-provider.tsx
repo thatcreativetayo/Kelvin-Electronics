@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { products } from "@/data/products";
 import type { CartLine, CartLineResolved, Product, Variant } from "@/lib/types";
 
-const STORAGE_KEY = "kelvin.cart.v1";
+const STORAGE_KEY = "cloud.cart.v1";
 const MAX_PER_LINE = 10;
 
 type CartContextValue = {

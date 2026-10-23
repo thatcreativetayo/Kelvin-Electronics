@@ -1,4 +1,5 @@
 import { products } from "@/data/products";
+import { shippingFor } from "@/lib/shipping";
 import type { Variant } from "@/lib/types";
 
 export type CheckoutItemInput = { variantId: string; quantity: number };
@@ -26,7 +27,7 @@ export type ValidatedOrder = {
   subtotal: number;
   shipping: number;
   total: number;
-  currency: "USD";
+  currency: "NGN";
 };
 
 const index = new Map<string, { variant: Variant; productName: string }>();
@@ -113,8 +114,11 @@ export function validateOrder(
   if (!isString(address.line1) || !isString(address.city) || !isString(address.country)) {
     return { ok: false, status: 400, message: "A delivery address, city and country are required." };
   }
+  if (address.country.trim().toLowerCase() !== "nigeria") {
+    return { ok: false, status: 400, message: "Cloud currently delivers within Nigeria only." };
+  }
 
-  const shipping = subtotal >= 15000 ? 0 : 1200;
+  const shipping = shippingFor(subtotal);
 
   return {
     ok: true,
@@ -137,7 +141,7 @@ export function validateOrder(
       subtotal,
       shipping,
       total: subtotal + shipping,
-      currency: "USD",
+      currency: "NGN",
     },
   };
 }

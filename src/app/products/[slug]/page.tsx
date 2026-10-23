@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, ChevronRight, ShieldCheck, Truck, Undo2 } from "lucide-react";
+import { ArrowUpRight, ChevronRight, MessageCircle, ShieldCheck, Truck, Undo2 } from "lucide-react";
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
 import { products } from "@/data/products";
-import { isAvailable, priceOf, relatedProducts } from "@/lib/catalog";
+import { priceOf, relatedProducts } from "@/lib/catalog";
 import { getCatalog } from "@/lib/content";
+import { whatsappOrderHref } from "@/lib/contact";
 import { formatPrice } from "@/lib/format";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -27,9 +28,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: product.name,
     description: product.summary,
     openGraph: {
-      title: `${product.name} · KELVIN`,
+      title: `${product.name} | Cloud`,
       description: product.summary,
-      images: [{ url: product.images[0].src, width: 1400, height: 1400, alt: product.images[0].alt }],
+      images: [{ url: product.images[0].src, width: 1200, height: 1200, alt: product.images[0].alt }],
     },
   };
 }
@@ -41,68 +42,88 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product) notFound();
 
   const collection = collections.find((item) => item.slug === product.collection);
-  const available = isAvailable(product);
   const lowest = priceOf(product);
   const highest = Math.max(...product.variants.map((variant) => variant.price));
   const related = relatedProducts(product, 4, catalogProducts);
 
   return (
-    <div className="shell pt-6 pb-20 md:pt-8 md:pb-24">
+    <div className="shell pb-20 pt-5 md:pb-24 md:pt-7">
       <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
-        <Link href="/" className="transition-colors hover:text-ink">
+        <Link href="/" className="transition-colors duration-150 hover:text-ink">
           Home
         </Link>
-        <ChevronRight size={12} strokeWidth={1.75} className="text-faint" />
-        <Link href={`/collections/${product.collection}`} className="transition-colors hover:text-ink">
-          {collection?.name}
+        <ChevronRight size={12} strokeWidth={1.8} />
+        <Link
+          href={`/collections/${product.collection}`}
+          className="transition-colors duration-150 hover:text-ink"
+        >
+          {collection?.name ?? "Shop"}
         </Link>
-        <ChevronRight size={12} strokeWidth={1.75} className="text-faint" />
+        <ChevronRight size={12} strokeWidth={1.8} />
         <span className="text-ink">{product.name}</span>
       </nav>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-12">
+      <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-12 xl:gap-16">
         <div className="lg:col-span-7">
           <ProductGallery images={product.images} name={product.name} />
         </div>
 
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-[calc(var(--header-h)+24px)]">
-            <p className="type-micro text-muted">{product.brand}</p>
-            <h1 className="mt-2 text-[clamp(1.875rem,3.4vw,2.75rem)] font-semibold leading-[1.02] tracking-[-0.035em]">
-              {product.name}
-            </h1>
-            <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-2">{product.summary}</p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="type-eyebrow">{product.brand}</p>
+              <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted">Imported by Cloud</span>
+            </div>
+            <h1 className="type-h1 mt-3">{product.name}</h1>
+            <p className="type-body mt-4 max-w-[46ch] text-muted">{product.summary}</p>
 
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="num text-2xl tracking-[-0.02em]">{formatPrice(lowest)}</span>
-              {highest > lowest && <span className="text-xs text-muted">– {formatPrice(highest)}</span>}
-              <span className="ml-auto text-xs text-muted">{available ? "In stock" : "Sold out"}</span>
+              <span className="num text-[28px] font-semibold leading-none tracking-[-0.03em]">
+                {formatPrice(lowest)}
+              </span>
+              {highest > lowest && <span className="num text-xs text-muted">to {formatPrice(highest)}</span>}
             </div>
+            <p className="mt-2 text-[11px] text-muted">Customs included. Free delivery over ₦150,000.</p>
 
-            <div className="mt-6">
+            <div className="mt-7 border-t border-border pt-6">
               <AddToCart product={product} />
             </div>
 
-            <dl className="mt-7 divide-y divide-line border-y border-line">
+            <a
+              href={whatsappOrderHref(product.name)}
+              className="btn btn-secondary mt-2.5 w-full"
+              aria-label={`Order ${product.name} on WhatsApp`}
+            >
+              <MessageCircle size={15} strokeWidth={1.9} />
+              Order on WhatsApp
+            </a>
+
+            <dl className="mt-8 divide-y divide-border border-y border-border">
               <div className="flex items-start gap-3 py-3.5">
-                <Truck size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-ink-2" />
+                <Truck size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-primary-text" />
                 <div>
                   <dt className="text-[13px] font-medium">Delivery</dt>
-                  <dd className="text-xs text-muted">Free over $150. Lagos and Abuja in 1–2 business days.</dd>
+                  <dd className="mt-0.5 text-xs leading-relaxed text-muted">
+                    Free over ₦150,000. Lagos in 1-3 working days, nationwide in 2-5.
+                  </dd>
                 </div>
               </div>
               <div className="flex items-start gap-3 py-3.5">
-                <Undo2 size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-ink-2" />
+                <Undo2 size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-primary-text" />
                 <div>
                   <dt className="text-[13px] font-medium">Returns</dt>
-                  <dd className="text-xs text-muted">Thirty days from delivery, unopened or faulty.</dd>
+                  <dd className="mt-0.5 text-xs leading-relaxed text-muted">
+                    14 days from delivery, unused and in the original packaging.
+                  </dd>
                 </div>
               </div>
               <div className="flex items-start gap-3 py-3.5">
-                <ShieldCheck size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-ink-2" />
+                <ShieldCheck size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-primary-text" />
                 <div>
-                  <dt className="text-[13px] font-medium">Warranty</dt>
-                  <dd className="text-xs text-muted">Two years, handled in-house. Repairs before replacement.</dd>
+                  <dt className="text-[13px] font-medium">Support</dt>
+                  <dd className="mt-0.5 text-xs leading-relaxed text-muted">
+                    One year on electronics, handled by Cloud. Apparel follows the 14-day return window.
+                  </dd>
                 </div>
               </div>
             </dl>
@@ -110,23 +131,22 @@ export default async function ProductPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Detail */}
-      <section className="mt-20 grid gap-12 border-t border-line pt-12 lg:grid-cols-12 lg:gap-16" aria-labelledby="detail">
+      <section className="mt-16 grid gap-10 border-t border-border pt-12 lg:grid-cols-12 lg:gap-16" aria-labelledby="detail">
         <div className="lg:col-span-5">
-          <p className="type-micro text-muted">In detail</p>
-          <h2 id="detail" className="type-h2 mt-2">
+          <p className="type-eyebrow">In detail</p>
+          <h2 id="detail" className="type-h2 mt-2.5">
             Why we stock it.
           </h2>
-          <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-ink-2">
+          <div className="mt-5 space-y-4 text-[15px] leading-relaxed text-muted">
             {product.description.map((paragraph) => (
               <p key={paragraph.slice(0, 24)}>{paragraph}</p>
             ))}
           </div>
 
-          <ul className="mt-8 space-y-2.5 border-t border-line pt-6">
+          <ul className="mt-7 space-y-2.5 border-t border-border pt-5">
             {product.highlights.map((highlight) => (
               <li key={highlight} className="flex items-start gap-2.5 text-sm">
-                <span aria-hidden className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+                <span aria-hidden className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-primary" />
                 {highlight}
               </li>
             ))}
@@ -134,13 +154,13 @@ export default async function ProductPage({ params }: PageProps) {
         </div>
 
         <div className="lg:col-span-7">
-          <div className="border border-line bg-paper">
-            <div className="border-b border-line px-5 py-4">
-              <h3 className="type-micro text-muted">Specifications</h3>
+          <div className="card overflow-hidden">
+            <div className="border-b border-border px-5 py-4">
+              <h3 className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink">Specifications</h3>
             </div>
-            <dl className="divide-y divide-line">
+            <dl className="divide-y divide-border">
               {product.specs.map((spec) => (
-                <div key={spec.label} className="grid grid-cols-[minmax(120px,0.6fr)_1fr] gap-4 px-5 py-3.5">
+                <div key={spec.label} className="grid grid-cols-[minmax(120px,0.6fr)_1fr] gap-4 px-5 py-3">
                   <dt className="text-[13px] text-muted">{spec.label}</dt>
                   <dd className="text-[13px] text-ink">{spec.value}</dd>
                 </div>
@@ -149,26 +169,29 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted">
             Specifications are supplied by the manufacturer and checked against the unit we stock. If a number
-            here matters to your decision and you want it confirmed, email us before ordering.
+            here matters to your decision, ask us before ordering.
           </p>
         </div>
       </section>
 
       {related.length > 0 && (
-        <section className="mt-20 border-t border-line pt-12" aria-labelledby="related">
+        <section className="mt-16 border-t border-border pt-12" aria-labelledby="related">
           <div className="flex items-end justify-between gap-6">
-            <h2 id="related" className="type-h3">
-              Also worth a look
-            </h2>
+            <div>
+              <p className="type-eyebrow">Keep looking</p>
+              <h2 id="related" className="type-h2 mt-2.5">
+                Also worth a look.
+              </h2>
+            </div>
             <Link
               href={`/collections/${product.collection}`}
-              className="type-micro inline-flex items-center gap-1.5 text-muted transition-colors hover:text-ink"
+              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted transition-colors duration-150 hover:text-ink"
             >
-              All {collection?.name.toLowerCase()}
-              <ArrowUpRight size={12} strokeWidth={1.75} />
+              All {collection?.name.toLowerCase() ?? "products"}
+              <ArrowUpRight size={13} strokeWidth={1.9} />
             </Link>
           </div>
-          <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-5">
+          <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {related.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}

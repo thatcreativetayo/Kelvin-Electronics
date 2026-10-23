@@ -1,129 +1,150 @@
 # Architecture
 
-KELVIN separates three planes so that a failure in one does not take down the storefront.
+Cloud is a single Next.js application with optional external services. The storefront must remain useful when every integration is absent, so each external plane is an enhancement rather than a hard dependency.
 
+```text
+Browser
+  |
+  v
+Next.js 16 App Router
+  |-- React Server Components: catalogue, collection, product, search, editorial pages
+  |-- Client components: cart provider, cart drawer, quick add, gallery, checkout form
+  |-- Route handlers (Node runtime)
+        |-- POST /api/checkout  -> Supabase create_order (when configured)
+        |-- GET  /api/stock     -> Supabase inventory (falls back to seed stock)
+        |-- POST /api/cloudinary/sign (when Cloudinary is configured)
+
+Content plane                         Commerce plane
+  Sanity (published products,           Supabase (inventory, customers,
+  collections)                          orders, stock movements)
+  or src/data seed catalogue
+                                        Payment provider: not implemented
+Media plane
+  Cloudinary URLs, or committed local
+  product renders under /public/products
 ```
-┌──────────────────────────────┐
-│ Next.js storefront           │
-│  RSC pages · client cart     │
-│  API routes (Node runtime)   │
-└──────┬───────────┬───────────┘
-       │           │
-       │ read      │ read/write (server only)
-       ▼           ▼
-┌────────────┐  ┌────────────────┐
-│  Sanity    │  │    Supabase    │
-│  content   │  │ inventory      │
-│  (CDN)     │  │ orders · carts │
-└────────────┘  └────────────────┘
-       │
-       │ public IDs
-       ▼
-┌────────────────────────────┐
-│ Cloudinary — media delivery │
-│ signed uploads from Studio  │
-└────────────────────────────┘
+
+## Runtime boundaries
+
+### Server components
+
+Pages read data through `getCatalog()` in `src/lib/content.ts`. It is wrapped in React `cache`, so a single request maps the catalogue once even when several page sections use it.
+
+- When Sanity is configured, published products and collections are fetched with the CDN client.
+- When Sanity is absent, returns no published products, or fails, the local seed catalogue is used unchanged.
+- The fallback never blocks a page or throws into the UI. A warning is logged server-side.
+
+`src/data/products.ts` and `src/data/collections.ts` are therefore both the seeded build and the reference shape expected from Sanity.
+
+### Client components
+
+The bag is local-first. `src/components/cart-provider.tsx` owns the state and persists `{ variantId, productSlug, quantity }[]` under `cloud.cart.v1`. It resolves variant details against the local catalogue, enforces a maximum of 10 per line, and never mutates a price.
+
+The header, cart drawer, product controls, gallery, filters, and checkout form are client components. Server pages pass only serialisable catalog data into them.
+
+### Route handlers
+
+All privileged operations run on the server:
+
+- `POST /api/checkout` validates the payload and rebuilds every line total from the catalogue. It does not trust client prices, names, or stock.
+- `GET /api/stock?variantIds=...` reads current availability from Supabase. If the admin client is unavailable it returns seed stock and labels the response `source: "seed"`.
+- `POST /api/cloudinary/sign` signs Studio uploads with a shared upload token and the Cloudinary secret.
+
+The service-role Supabase client is created only in route handlers. It is never imported by a client component.
+
+## Routes
+
+| Route | Rendering | Purpose |
+| --- | --- | --- |
+| `/` | Static, revalidated | Editorial homepage, category grid, new-in, Cloud Home edit, Cloud Wear, import story |
+| `/collections/[slug]` | Dynamic | Filtered and sorted catalogue; `lighting`, `power`, `kitchen`, `wear`, `all` |
+| `/products/[slug]` | SSG per seed product | Product details, variant picker, specification table, related products |
+| `/search` | Dynamic | Local catalogue search with query parameters |
+| `/cart` | Static shell | Local bag, quantities, delivery estimate, checkout link |
+| `/checkout` | Static shell | Nigerian delivery form and order review |
+| `/how-it-works` | Static | Sourcing, delivery, returns, warranty, honest-commerce commitments |
+| `/credits` | Static | Product illustration and typeface credits |
+| `/studio` | Static status board | Reads the process environment and reports integration readiness |
+| `/api/checkout` | Node route handler | Server-side validation and order boundary |
+| `/api/stock` | Node route handler | Current stock adapter |
+| `/api/cloudinary/sign` | Node route handler | Signed Cloudinary uploads |
+
+`/studio` is not the Sanity Studio. The editable Studio is the separate package in `studio/` and runs on port 3333.
+
+## Catalogue model
+
+A product has one collection, one or more variants, images, editorial copy, specifications, filter facets, and merchandising flags.
+
+```ts
+Product {
+  id, slug, name, brand, collection,
+  summary, description[], highlights[], specs[],
+  images[], variants[], filters,
+  featured, newArrival, bestseller, releasedAt
+}
+
+Variant {
+  id, sku, options: Record<string, string>, price /* kobo */, stock
+}
 ```
 
-- **Sanity owns content:** products, collections, homepage composition, navigation, promotions, pages, brand settings and SEO defaults.
-- **Supabase owns commerce state:** inventory, stock movements, customers, addresses, carts, orders and order lines.
-- **Cloudinary owns media:** the source image lives there; Sanity stores a public ID, not a binary.
-- **The seed catalog** in `src/data/` is a complete local copy of the demo content. It is the fallback and the thing you see without credentials.
+Variant IDs are stable commerce keys in the form `product-slug--option-slug`. SKUs are uppercase and unique across the catalogue. Supabase inventory is keyed by the same variant ID. Do not change either after an order exists.
 
-## Request paths
+Current catalogue: 12 products and 27 variants across four collections.
 
-### Home, collection, product, search
+## Money and delivery
 
-1. The server component calls `getCatalog()` in `src/lib/content.ts`.
-2. If Sanity is unconfigured, it returns the seed immediately — no network request.
-3. If configured, it runs the product and collection GROQ queries in parallel, maps documents to the shared `Product` / `Collection` types, and returns `source: "sanity"`.
-4. If the query fails or returns no published products, it logs one warning and returns the seed.
-5. Collection filtering, faceting, sorting and pagination happen in memory in `src/lib/catalog.ts`. With a catalog this size that is faster and simpler than round-tripping a search service.
-6. Pages revalidate every 300 seconds; product pages are generated at build time from the seed slugs and revalidated.
+- All amounts are integers in kobo. There are no floating-point prices.
+- `src/lib/format.ts` is the only display formatter. It uses `en-NG` and displays the narrow Naira symbol.
+- `src/lib/shipping.ts` is the shared delivery rule: free at ₦150,000, otherwise ₦4,500.
+- The checkout validator recalculates subtotal and delivery on the server before calling Postgres.
+- Checkout accepts Nigerian delivery addresses only. This is enforced in the client for helpful errors and again in the route handler.
 
-`getCatalog()` is wrapped in React `cache`, so a page that calls it in both `generateMetadata` and the component reads once per request.
+## Styling and brand
 
-### Cart
+Brand tokens and the small type scale live in `src/app/globals.css`.
 
-`src/components/cart-provider.tsx` is a client context.
+- Canvas `#f6f3eb`, paper `#fffdf8`, ink `#101214`.
+- Cobalt `#1f3bff` is the single accent.
+- Colour blocks: sky `#dbe7f6`, butter `#f0e3b5`, clay `#f0dbcd`, sage `#dde6d6`.
+- Instrument Serif for display and editorial statements; DM Sans for commerce and controls.
+- Sentence case, no uppercase micro-labels, no gradients, no glass surfaces, no invented social proof.
 
-- Stored in `localStorage` under `kelvin.cart.v1` as `{ variantId, productSlug, quantity }[]`.
-- On hydration, unknown variants are dropped and quantities clamped to 1–10 and to seed stock.
-- Product name, options and price are resolved from the catalog at render time — the stored cart never freezes a price.
-- The drawer traps the page scroll, closes on Escape, and restores focus to the trigger.
-- Guest-only. Supabase cart tables and RLS exist for signed-in carts, but no auth UI is shipped.
+The design direction is a warm department store rather than a boutique electronics brand. Large serif statements, strong category blocks, and plain-spoken product copy carry the identity.
 
-### Stock API
+## Failure modes
 
-`GET /api/stock?variantIds=a,b,c`
-
-- Uses the service-role client when Supabase is configured, computes `on_hand - reserved - safety_stock`, and labels the response `source: "supabase"`.
-- Otherwise returns seed stock labelled `source: "seed"`.
-- Always `cache-control: no-store`.
-- The cart currently does not call this on every render; it is the hook for live availability when the catalog moves into Supabase.
-
-### Checkout
-
-`POST /api/checkout` → [CHECKOUT.md](CHECKOUT.md).
-
-### Uploads
-
-`POST /api/cloudinary/sign` → [CONTENT-MODEL.md](CONTENT-MODEL.md#cloudinary).
-
-## Trust boundaries
-
-| Boundary | Rule |
+| Missing or failed service | Storefront behaviour |
 | --- | --- |
-| Browser → content | Sanity is queried server-side with the public dataset by default. The read token stays on the server. |
-| Browser → orders | Prices, names and stock are recomputed from the catalog in the route. The client sends only `variantId` + `quantity`, customer and address. |
-| Browser → Supabase | Anon key only. RLS permits reading inventory and the caller's own records. There is no insert/update policy on orders or order items. |
-| Route → Supabase | Service-role key, server only. `create_order` is revoked from `anon` and `authenticated`. |
-| Studio → Cloudinary | The shared upload token authorises signing only. The API secret never leaves the route. Uploads are folder-scoped. |
-| Client → prices | Never trusted. `validateOrder` recomputes every line from the server catalog. |
+| Sanity absent or request fails | Seed catalogue; no broken page |
+| Supabase absent | Seed stock; checkout disabled |
+| Payment absent | Checkout button disabled; API returns 501 |
+| Cloudinary absent | Local `/products/*.png` images; uploaded media falls back to local paths |
+| Unknown product slug | `notFound()` and the custom 404 page |
+| Unknown or unavailable variant | Validation error; no order and no payment |
 
-No secret is referenced from a `NEXT_PUBLIC_` variable except the Supabase URL/anon key, the Sanity project ID/dataset and the Cloudinary cloud name, all of which are public by design.
+## Files worth knowing
 
-## Data contracts
-
-The most important contract is the **variant ID**: `product-slug--option`.
-
-- Sanity stores it on the variant object.
-- `src/data/products.ts` mirrors it.
-- `supabase/seed.sql` inserts inventory keyed by it.
-- `order_items.variant_id` records it permanently.
-- The cart and checkout validator look it up by it.
-
-Renaming a published variant ID breaks the stock link. Add a new variant and archive the old one instead.
-
-Prices are integers in minor units everywhere: catalog, cart, checkout validation, SQL, emails. There is no float currency arithmetic.
-
-## Caching and performance
-
-- Product images are local transparent 1200 × 1200 PNG cutouts served through `next/image`, which emits responsive `srcset`s and AVIF/WebP.
-- Cloudinary URLs request `f_auto,q_auto,w_1400`; the Studio preview requests a 640 px variant.
-- The homepage and collection/product pages carry `revalidate = 300`.
-- The header and cart badge are client components; everything else is a server component.
-- Fonts are loaded through `geist/font`, self-hosted by Next.
-- No third-party analytics, chat widgets or font CDNs are loaded.
-
-## Failure behaviour
-
-| Failure | Result |
+| Path | Responsibility |
 | --- | --- |
-| Sanity unset / empty / down | Seed catalog, one server warning, no broken layout |
-| Supabase unset | Checkout 501 with missing variables; stock falls back to seed |
-| Supabase down during order | 500, no order number, no payment taken |
-| Cloudinary unset | Sign endpoint 501; existing local images still render |
-| Client offline during checkout | Catch shows a connection error; nothing is cleared |
-| `localStorage` blocked | Cart works in memory for the session |
+| `src/app/page.tsx` | Homepage composition and editorial merchandising |
+| `src/data/products.ts` | Seed catalogue, prices, stock, facets, copy |
+| `src/data/collections.ts` | Collections, tones, images, descriptions |
+| `src/data/site.ts` | Placeholder legal and contact details |
+| `src/lib/content.ts` | Sanity adapter, seed fallback, image mapping |
+| `src/lib/catalog.ts` | Filtering, sorting, facets, related products |
+| `src/lib/checkout.ts` | Server-side order validation and totals |
+| `src/lib/shipping.ts` | Shared Naira delivery rule |
+| `src/components/cart-provider.tsx` | Local bag state and persistence |
+| `src/components/checkout-form.tsx` | Checkout UI and honest unconfigured state |
+| `src/app/globals.css` | Brand tokens, type scale, controls, motion |
+| `supabase/migrations/` | Commerce schema and `create_order` |
+| `studio/` | Sanity Studio schemas and structure |
+| `tools/` | Seed check, browser smoke test, screenshots, product render pipeline |
 
-## Deliberate omissions
+## Current boundaries
 
-- No auth UI, account pages or order lookup.
-- No payment adapter or webhook.
-- No transactional email.
-- No search index; search is an in-memory scan.
-- No CMS webhook to trigger revalidation — the 300-second ISR window covers it for now.
-- No navigation/promotion rendering from Sanity yet; the schemas are ready.
-
-These are boundaries, not hidden stubs. Nothing in the UI claims they exist.
+- Sanity owns products and collections only. Homepage composition, navigation, and footer content are code-driven in this build even though schemas exist for them.
+- The header navigation reads the seed collection list, not Sanity.
+- Payment capture is not implemented. The order boundary is real; the charge is not.
+- The Supabase SQL has not been executed in this environment. It needs a real Postgres instance or the Supabase CLI before launch.

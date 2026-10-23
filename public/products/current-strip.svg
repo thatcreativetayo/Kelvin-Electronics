@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<defs>
+  <filter id="floor" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="26"/>
+  </filter>
+  <filter id="lift" x="-40%" y="-40%" width="180%" height="200%">
+    <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#101318" flood-opacity="0.16"/>
+  </filter>
+  <filter id="lift-soft" x="-40%" y="-40%" width="180%" height="200%">
+    <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#101318" flood-opacity="0.12"/>
+  </filter>
+  <linearGradient id="paper" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#fcfaf4"/>
+    <stop offset="0.56" stop-color="#efe9dd"/>
+    <stop offset="1" stop-color="#dcd3c4"/>
+  </linearGradient>
+  <linearGradient id="paper-side" x1="0" y1="0" x2="1" y2="0.5">
+    <stop offset="0" stop-color="#cfc5b5"/>
+    <stop offset="1" stop-color="#aaa092"/>
+  </linearGradient>
+  <linearGradient id="ink" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#3b4047"/>
+    <stop offset="0.55" stop-color="#1a1d21"/>
+    <stop offset="1" stop-color="#0c0e10"/>
+  </linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#8f897e"/>
+    <stop offset="0.18" stop-color="#f1ede5"/>
+    <stop offset="0.46" stop-color="#b7b0a3"/>
+    <stop offset="0.72" stop-color="#ece7dd"/>
+    <stop offset="1" stop-color="#8b857a"/>
+  </linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#4561ff"/>
+    <stop offset="1" stop-color="#1732d8"/>
+  </linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#f3f8ff"/>
+    <stop offset="0.55" stop-color="#dbe8fb"/>
+    <stop offset="1" stop-color="#bdcee8"/>
+  </linearGradient>
+  <linearGradient id="sand" x1="0" y1="0" x2="0.7" y2="1">
+    <stop offset="0" stop-color="#eee1c9"/>
+    <stop offset="0.6" stop-color="#ddcdb2"/>
+    <stop offset="1" stop-color="#c5b393"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0.1" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#fffef9" stop-opacity="0.98"/>
+    <stop offset="0.5" stop-color="#f4efe4" stop-opacity="0.94"/>
+    <stop offset="1" stop-color="#cfc6b6" stop-opacity="0.9"/>
+  </linearGradient>
+  <radialGradient id="warm-glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffd889" stop-opacity="0.55"/>
+    <stop offset="0.5" stop-color="#ffd889" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#ffd889" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="white-glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="fade-down" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe1a0" stop-opacity="0.5"/>
+    <stop offset="1" stop-color="#ffe1a0" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="cloth" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#f8f5ee"/>
+    <stop offset="0.6" stop-color="#e9e3d7"/>
+    <stop offset="1" stop-color="#d5ccbd"/>
+  </linearGradient>
+  <linearGradient id="hood" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#e5d8c2"/>
+    <stop offset="0.6" stop-color="#d3c2a8"/>
+    <stop offset="1" stop-color="#b9a789"/>
+  </linearGradient>
+  <linearGradient id="canvas" x1="0" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#efe6d2"/>
+    <stop offset="0.6" stop-color="#e0d2b8"/>
+    <stop offset="1" stop-color="#c8b796"/>
+  </linearGradient>
+</defs>
+    <ellipse cx="600" cy="848" rx="350" ry="36" fill="#111418" opacity="0.1" filter="url(#floor)"/>
+    <g filter="url(#lift)">
+      <path d="M270 526H862C894 526 920 552 920 584V666C920 698 894 724 862 724H270C238 724 212 698 212 666V584C212 552 238 526 270 526Z" fill="url(#paper-side)"/>
+      <rect x="212" y="500" width="708" height="214" rx="58" fill="url(#paper)" stroke="#cfc4b2" stroke-width="2"/>
+      <rect x="240" y="526" width="652" height="162" rx="38" fill="#fbf8f1" stroke="#e2dacd" stroke-width="2"/>
+      <g fill="#24282d">
+        <rect x="280" y="556" width="26" height="44" rx="11"/><rect x="252" y="616" width="54" height="22" rx="10"/><rect x="280" y="616" width="26" height="22" rx="10" opacity="0"/>
+        <rect x="434" y="556" width="26" height="44" rx="11"/><rect x="398" y="616" width="54" height="22" rx="10"/><rect x="442" y="616" width="54" height="22" rx="10"/>
+        <rect x="588" y="556" width="26" height="44" rx="11"/><rect x="552" y="616" width="54" height="22" rx="10"/><rect x="596" y="616" width="54" height="22" rx="10"/>
+        <rect x="742" y="556" width="26" height="44" rx="11"/><rect x="706" y="616" width="54" height="22" rx="10"/><rect x="750" y="616" width="54" height="22" rx="10"/>
+      </g>
+      <g fill="#0f1113">
+        <rect x="290" y="566" width="8" height="24" rx="4"/><rect x="267" y="624" width="26" height="8" rx="4"/><rect x="452" y="624" width="26" height="8" rx="4"/><rect x="470" y="624" width="26" height="8" rx="4"/>
+        <rect x="606" y="624" width="26" height="8" rx="4"/><rect x="624" y="624" width="26" height="8" rx="4"/><rect x="760" y="624" width="26" height="8" rx="4"/><rect x="778" y="624" width="26" height="8" rx="4"/>
+      </g>
+      <circle cx="842" cy="566" r="20" fill="url(#blue)"/>
+      <rect x="826" y="560" width="32" height="12" rx="6" fill="#eaf0ff"/>
+      <path d="M212 640C150 640 122 674 122 716C122 766 160 784 196 784" fill="none" stroke="#24282d" stroke-width="15" stroke-linecap="round"/>
+      <path d="M196 784H278" stroke="#24282d" stroke-width="15" stroke-linecap="round"/>
+      <rect x="278" y="758" width="76" height="52" rx="16" fill="url(#ink)"/>
+      <text x="616" y="542" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="1.2" fill="#9c9488">CLOUD CURRENT 4</text>
+    </g></svg>

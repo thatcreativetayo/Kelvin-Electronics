@@ -14,14 +14,14 @@ export const settings = defineType({
       name: "brandName",
       type: "string",
       group: "brand",
-      initialValue: "KELVIN",
+      initialValue: "cloud",
       validation: (rule) => rule.required().max(24),
     }),
     defineField({
       name: "tagline",
       type: "string",
       group: "brand",
-      initialValue: "Precision electronics",
+      initialValue: "The good stuff, brought home",
       validation: (rule) => rule.max(60),
     }),
     defineField({
@@ -35,8 +35,8 @@ export const settings = defineType({
       name: "currency",
       type: "string",
       group: "brand",
-      options: { list: ["USD", "GBP", "EUR", "NGN"] },
-      initialValue: "USD",
+      options: { list: ["NGN"] },
+      initialValue: "NGN",
       validation: (rule) => rule.required(),
     }),
     defineField({

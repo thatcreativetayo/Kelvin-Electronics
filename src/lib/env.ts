@@ -20,7 +20,7 @@ export const cloudinaryEnv = {
   cloudName: read(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME),
   apiKey: read(process.env.CLOUDINARY_API_KEY),
   apiSecret: read(process.env.CLOUDINARY_API_SECRET),
-  uploadFolder: read(process.env.CLOUDINARY_UPLOAD_FOLDER) ?? "kelvin/products",
+  uploadFolder: read(process.env.CLOUDINARY_UPLOAD_FOLDER) ?? "cloud/products",
 };
 
 export const integrations = {

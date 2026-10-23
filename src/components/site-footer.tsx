@@ -1,101 +1,146 @@
+import Image from "next/image";
 import Link from "next/link";
-import { collections } from "@/data/collections";
-import { sanityEnv } from "@/lib/env";
+import { ArrowUpRight, Mail, MapPin } from "lucide-react";
+import { site, socials } from "@/data/site";
+import { whatsappSupportHref } from "@/lib/contact";
+import type { Collection } from "@/lib/types";
 
 const year = new Date().getFullYear();
-const hasExternalStudio = /^https?:\/\//.test(sanityEnv.studioUrl);
 
-export function SiteFooter() {
+export function SiteFooter({ collections }: { collections: Collection[] }) {
   return (
-    <footer className="border-t border-line bg-canvas">
-      <div className="shell grid gap-12 py-16 md:grid-cols-12 md:gap-8">
-        <div className="md:col-span-5">
-          <Link href="/" className="flex items-baseline gap-1.5">
-            <span className="text-[22px] font-semibold tracking-[-0.06em]">KELVIN</span>
-            <span className="text-[14px] leading-none text-accent">°</span>
+    <footer className="border-t border-border bg-surface">
+      <div className="shell grid gap-12 py-14 lg:grid-cols-12 lg:gap-10 lg:py-20">
+        <div className="lg:col-span-5">
+          <Link href="/" aria-label="Cloud home" className="inline-flex">
+            <Image src="/brand/logo.svg" alt="Cloud" width={792} height={300} className="h-8 w-auto" />
           </Link>
-          <p className="mt-5 max-w-[36ch] text-sm leading-relaxed text-ink-2">
-            An independent electronics retailer. We stock a short list of audio, computing, imaging and gaming
-            products — chosen for how they hold up after the unboxing, not the launch week.
+          <p className="mt-6 max-w-[38ch] text-sm leading-relaxed text-muted">
+            Cloud imports a short edit of electronics, home essentials and everyday wear. We handle sourcing,
+            customs and delivery across Nigeria.
           </p>
-          <p className="type-micro mt-6 text-muted">Lagos · London · Shipping worldwide</p>
+          <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2">
+            {socials.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.08em] text-muted transition-colors duration-150 hover:text-ink"
+              >
+                {social.label}
+                <ArrowUpRight size={10} strokeWidth={1.8} />
+              </a>
+            ))}
+          </div>
         </div>
 
-        <nav aria-label="Shop" className="md:col-span-2">
-          <h2 className="type-micro text-muted">Shop</h2>
-          <ul className="mt-4 space-y-2.5">
-            {collections.map((collection) => (
-              <li key={collection.slug}>
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
+          <nav aria-label="Shop">
+            <h2 className="text-[10px] font-medium uppercase tracking-[0.14em] text-ink">Shop</h2>
+            <ul className="mt-5 space-y-3">
+              {collections.map((collection) => (
+                <li key={collection.slug}>
+                  <Link
+                    href={`/collections/${collection.slug}`}
+                    className="text-sm text-muted transition-colors duration-150 hover:text-ink"
+                  >
+                    {collection.name}
+                  </Link>
+                </li>
+              ))}
+              <li>
                 <Link
-                  href={`/collections/${collection.slug}`}
-                  className="text-sm text-ink-2 transition-colors hover:text-accent"
+                  href="/collections/all"
+                  className="text-sm text-muted transition-colors duration-150 hover:text-ink"
                 >
-                  {collection.name}
+                  All products
                 </Link>
               </li>
-            ))}
-            <li>
-              <Link href="/collections/all" className="text-sm text-ink-2 transition-colors hover:text-accent">
-                All products
-              </Link>
-            </li>
-          </ul>
-        </nav>
+            </ul>
+          </nav>
 
-        <nav aria-label="Company" className="md:col-span-2">
-          <h2 className="type-micro text-muted">Company</h2>
-          <ul className="mt-4 space-y-2.5">
-            <li>
-              <Link href="/#point-of-view" className="text-sm text-ink-2 transition-colors hover:text-accent">
-                Our point of view
-              </Link>
-            </li>
-            <li>
-              <Link href="/#service" className="text-sm text-ink-2 transition-colors hover:text-accent">
-                Delivery &amp; returns
-              </Link>
-            </li>
-            <li>
-              <Link href="/credits" className="text-sm text-ink-2 transition-colors hover:text-accent">
-                Image credits
-              </Link>
-            </li>
-            <li>
-              <Link href={sanityEnv.studioUrl} className="text-sm text-ink-2 transition-colors hover:text-accent">
-                {hasExternalStudio ? "Open studio" : "Studio status"}
-              </Link>
-            </li>
-          </ul>
-        </nav>
+          <nav aria-label="Help">
+            <h2 className="text-[10px] font-medium uppercase tracking-[0.14em] text-ink">Help</h2>
+            <ul className="mt-5 space-y-3">
+              <li>
+                <Link href="/how-it-works" className="text-sm text-muted transition-colors duration-150 hover:text-ink">
+                  About Cloud
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/how-it-works#delivery"
+                  className="text-sm text-muted transition-colors duration-150 hover:text-ink"
+                >
+                  Delivery
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/how-it-works#returns"
+                  className="text-sm text-muted transition-colors duration-150 hover:text-ink"
+                >
+                  Returns
+                </Link>
+              </li>
+              <li>
+                <Link href="/how-it-works#contact" className="text-sm text-muted transition-colors duration-150 hover:text-ink">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/credits" className="text-sm text-muted transition-colors duration-150 hover:text-ink">
+                  Credits
+                </Link>
+              </li>
+            </ul>
+          </nav>
 
-        <div className="md:col-span-3">
-          <h2 className="type-micro text-muted">Contact</h2>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-2">
-            <li>
-              <a href="mailto:hello@kelvin.store" className="transition-colors hover:text-accent">
-                hello@kelvin.store
-              </a>
-            </li>
-            <li>
-              <a href="tel:+2341000000000" className="transition-colors hover:text-accent">
-                +234 100 000 0000
-              </a>
-            </li>
-            <li className="pt-2 text-xs leading-relaxed text-muted">
-              Monday to Friday, 09:00–18:00 WAT.
-              <br />
-              Replies within one business day.
-            </li>
-          </ul>
+          <div className="col-span-2 sm:col-span-1">
+            <h2 className="text-[10px] font-medium uppercase tracking-[0.14em] text-ink">Contact</h2>
+            <ul className="mt-5 space-y-3 text-sm text-muted">
+              <li>
+                <a
+                  href={`mailto:${site.email}`}
+                  className="inline-flex items-center gap-2 transition-colors duration-150 hover:text-ink"
+                >
+                  <Mail size={14} strokeWidth={1.7} />
+                  {site.email}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={whatsappSupportHref()}
+                  className="inline-flex items-center gap-2 transition-colors duration-150 hover:text-ink"
+                >
+                  <span className="grid h-3.5 w-3.5 place-items-center" aria-hidden>
+                    <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                  </span>
+                  {site.whatsappNumber ? "Order on WhatsApp" : "WhatsApp support"}
+                </a>
+              </li>
+              <li className="flex items-start gap-2">
+                <MapPin size={14} strokeWidth={1.7} className="mt-0.5 shrink-0" />
+                <span>
+                  {site.location}
+                  <br />
+                  <span className="text-xs">{site.hours}</span>
+                </span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <div className="border-t border-line">
-        <div className="shell flex flex-col gap-3 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {year} Kelvin Electronics Ltd. Prices shown in USD.</p>
+      <div className="border-t border-border">
+        <div className="shell flex flex-col gap-3 py-5 text-[11px] text-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {year} {site.legalName}. All prices in Naira, customs included.
+          </p>
           <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span>Product photography: Wikimedia Commons contributors</span>
-            <Link href="/credits" className="underline decoration-line-strong underline-offset-4 hover:text-ink">
+            <span>Genuine products. Delivered across Nigeria.</span>
+            <Link href="/credits" className="underline decoration-border underline-offset-4 hover:text-ink">
               Credits
             </Link>
           </p>

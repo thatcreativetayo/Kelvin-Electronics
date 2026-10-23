@@ -1,190 +1,180 @@
 # Content model
 
-The Studio schema is the editorial contract. This document explains what each type is for and the rules an editor cannot see in the UI.
+Cloud content has two layers:
 
-The storefront adapts Sanity documents into the same types as `src/data/`; the adapter lives in `src/lib/content.ts`.
+1. **The seed catalogue** in `src/data/products.ts` and `src/data/collections.ts`. It is the reliable fallback and the reference shape for the site.
+2. **Sanity**, in `studio/`. When configured, published products and collections replace the seed catalogue.
 
-## Documents
+The storefront currently reads **products and collections** from Sanity. Other schemas in the Studio are prepared for a later content pass and are not read by the storefront yet. That distinction matters: editing an unwired document will not change the live site.
 
-### `product`
+## What is live
 
-| Field | Rule |
+| Schema | Read by storefront | Purpose |
+| --- | --- | --- |
+| `product` | Yes, when `status == "published"` | Catalogue details, variants, media, filters, SEO |
+| `collection` | Yes | Lighting, Power, Kitchen, Wear; tone and order |
+| `homepage` | No | Prepared homepage section stack |
+| `navigation` | No | Prepared announcement, header, footer links |
+| `settings` | No | Prepared brand and contact settings |
+| `promotion` | No | Prepared campaign records |
+| `page` | No | Prepared standalone pages |
+| `seoDefaults` | No | Prepared global SEO defaults |
+
+The header, footer, homepage composition, delivery copy, and legal copy are code-driven in this build. Product and collection pages use Sanity when it is available.
+
+## Product
+
+A product belongs to exactly one collection.
+
+| Field | Rules |
 | --- | --- |
-| `name` | Required, ≤ 70 characters. |
-| `slug` | Required, generated from the name. The storefront URL is `/products/{slug}`. |
-| `brand` | Required, ≤ 40. |
-| `collection` | Required reference to one department. |
-| `status` | `published` / `draft` / `archived`. Only `published` is read by the storefront. |
-| `summary` | Required, ≤ 180. Used on cards, search and the PDP lead. |
-| `releasedAt` | Required date. Drives “newest” sort. |
-| `flags.featured` | Shows in the featured sort and the shortlist candidates. |
-| `flags.newArrival` | Shows under “New this week”. |
-| `flags.bestseller` | Additional merchandising flag. |
-| `images` | 1–6 Cloudinary images. Each has required alt text. |
-| `variants` | At least one. Unique IDs. |
-| `filters.type` | Required controlled value. |
-| `filters.connectivity` | Optional `Wireless` / `Wired`. |
-| `highlights` | 2–6 short factual lines. |
-| `description` | 1–4 paragraphs, each a text block. |
-| `specs` | 3–14 label/value rows. |
-| `seo` | Optional override of title, description and share image. |
+| `name` | Required, max 70 characters, sentence case |
+| `slug` | Required, generated from the name, max 80 |
+| `brand` | Required, max 40; `Cloud Home` or `Cloud Wear` in the current catalogue |
+| `collection` | Required reference to a collection |
+| `status` | `draft`, `published`, or `archived`; only published products reach the storefront |
+| `summary` | Required, max 180; one sentence for cards and search |
+| `releasedAt` | Required; controls “new in” ordering |
+| `flags` | `featured`, `newArrival`, `bestseller` |
+| `images` | One to six Cloudinary images; alt text required |
+| `variants` | One or more variants; IDs unique within the product |
+| `filters` | Controlled `type`, `room`, and `fit` facets |
+| `highlights` | 2–6 factual lines |
+| `description` | One to four paragraphs |
+| `specs` | 3–14 label/value rows for electronics |
+| `seo` | Optional title, description, social image, no-index |
 
-### `collection`
+Product copy is plain-spoken and factual. No invented reviews, scarcity, countdowns, or “best ever” claims.
 
-The five departments: Audio, Computing, Mobile, Imaging, Gaming.
+### Variants
 
-- `slug` is the route segment and the value stored on `product.collection`.
-- `eyebrow` follows `NN / Name` (`01 / Audio`). The homepage shows the number.
-- `position` controls navigation and rail order; 1–5.
-- `showInNavigation` hides a department from the header without deleting it.
-- `image` is the department plate. It must be a Cloudinary image.
-- `description` is the collection-page lead.
-
-Do not create a sixth department without also extending the seed and the product filter vocabulary.
-
-### `homepage` (singleton)
-
-`sections[]` is an ordered stack of:
-
-- **Hero** — eyebrow, headline, supporting copy, optional product reference, CTA label/href.
-- **Product rail** — title, optional eyebrow, product references, “view all” link.
-- **Editorial** — image, caption, headline, body, optional link.
-- **Service strip** — two to four icon/label/body items.
-
-The storefront renders sections in order and skips empty ones. The current storefront homepage is hand-built from the seed and does **not** yet consume this document — the schema is ready for the next pass.
-
-### `navigation` (singleton)
-
-Announcement bar, header links, footer columns, contact details and legal line. The present header/footer are seed-built; this document is not read yet.
-
-### `promotion`
-
-Scheduled announcement or homepage banner. `startsAt` / `endsAt` are validated so the end is after the start. `active` is a manual switch on top of the schedule. Not rendered yet.
-
-### `page`
-
-Editorial pages with portable text (headings, paragraphs, quote, strong/emphasis, links, images), slug, intro, publish date and SEO. Not rendered by a catch-all route yet.
-
-### `settings` (singleton)
-
-Brand name, tagline, description, currency, contact details, social links and delivery/returns/warranty policy copy. Not read by the storefront yet.
-
-### `seoDefaults` (singleton)
-
-Default title, `%s` title template, default description, share image, Twitter handle and organisation name. The storefront currently uses metadata in `src/app/layout.tsx`; wiring this document is part of the CMS pass.
-
-## Objects
-
-### `cloudinaryImage`
-
-```ts
-{
-  publicId: string;   // Cloudinary public ID, required
-  alt: string;        // required, describes the image for screen readers
-  width?: number;     // intrinsic width, default 1400
-  height?: number;    // intrinsic height, default 1400
-  fallbackUrl?: string;
-}
+```text
+id:      product-slug--option-slug   (e.g. halo-smart-bulb--single)
+sku:     CLD-HALO-1
+options: { pack: "Single" }
+price:   1850000                     (kobo)
+stock:   24                          (seed stock only)
 ```
 
-The custom input uploads through `/api/cloudinary/sign`. Images are delivered as `f_auto,q_auto,w_1400`.
+Rules:
 
-### `variant`
+- The ID is permanent once orders or inventory exist.
+- SKUs are uppercase, unique, and max 32 characters.
+- Prices are integers in kobo. ₦18,500 is `1850000`.
+- `stock` seeds `inventory_items`. After launch, Supabase is the live stock source.
+- The storefront displays the variant option values, not internal names.
 
-```ts
-{
-  id: string;       // product-slug--option, permanent
-  sku: string;      // unique
-  options: { name: string; value: string }[];
-  price: number;    // integer minor units
-  stock: number;    // seed hint only; Supabase is authoritative
-}
+The current catalogue has 27 variants across 12 products. `pnpm seed:check` compares every variant ID, SKU, and seed stock value against `supabase/seed.sql`.
+
+### Filters
+
+Filters come from controlled lists in the Studio:
+
+- **Type:** Bulb, Floor lamp, Light strip, Smart plug, Extension, Power cube, Kettle, Air fryer, Blender, T-shirt, Hoodie, Tote.
+- **Room:** Every room, Living room, Bedroom, Home office, Kitchen.
+- **Fit:** Relaxed, Boxy, One size.
+
+Use the exact spelling. A new spelling creates a new, near-empty facet. Filtering runs over the catalogue on the collection page.
+
+### Imagery
+
+- Upload through the Cloudinary image field.
+- Each image has a public ID or fallback URL, alt text, and optional dimensions.
+- If a product has no usable image, the adapter falls back to `/products/{slug}.png`.
+- The current 12 products have original Cloud renders under `public/products/`. They are illustrated brand objects, not photographs of the exact shipping units.
+- Product renders are regenerated with `pnpm products:build`. The SVG source and PNG render are both committed.
+
+## Collection
+
+| Field | Rules |
+| --- | --- |
+| `name` | Required, max 40 |
+| `slug` | Required; current values are `lighting`, `power`, `kitchen`, `wear` |
+| `eyebrow` | Optional, e.g. `01 / Lighting` |
+| `tagline` | Required, max 60 |
+| `description` | Required, max 240 |
+| `image` | Required Cloudinary image or fallback |
+| `tone` | Sky, Butter, Clay, or Sage |
+| `position` | Integer; sorts collections for the homepage grid |
+| `showInNavigation` | Prepared for a future navigation adapter; not read today |
+
+The storefront also supports the virtual `/collections/all` route, which is not a Sanity document.
+
+## Path from content to storefront
+
+```text
+Sanity dataset
+  productQuery       -> published products, newest release first
+  collectionQuery    -> collections, position ascending
+        |
+        v
+src/lib/content.ts maps documents into the Product / Collection types
+        |
+        +-- if Sanity is missing, empty, or fails -> src/data seed
+        |
+        v
+server pages -> catalogue helpers -> client controls
 ```
 
-The `id` is written into Supabase inventory and order lines. Examples:
+Mappings to watch:
 
-- `airpods-max--silver`
-- `macbook-air--16-512`
-- `iphone-15-pro--256-blue`
-
-`options` is displayed on the PDP and in the cart (`Silver`, `16 GB / 512 GB`). Option names should be human-readable and stable.
-
-### `spec`
-
-`{ label, value }`. Labels are sentence case (`Battery life`, not `BATTERY LIFE`). Keep the same label for the same measurement across a department.
-
-### `seo`
-
-`title`, `description`, `image` (Cloudinary). Max title 60, description 160. The layout template appends ` · KELVIN` unless the title already contains the brand.
-
-### `link`
-
-`label`, `href` (relative or http/https/mailto), `external` boolean. External links open in a new tab with `rel="noreferrer"`.
-
-## Filter vocabulary
-
-The collection sidebar is generated from the products in that collection, so any value becomes a facet. Use the controlled list:
-
-| `type` | Used by |
-| --- | --- |
-| `Over-ear` | AirPods Max |
-| `In-ear` | AirPods Pro |
-| `Smart speaker` | HomePod mini |
-| `Laptop` | MacBook Air |
-| `Keyboard` | Magic Keyboard |
-| `Mouse` | MX Master 3S |
-| `Phone` | iPhone 15 Pro |
-| `Tablet` | iPad Pro |
-| `E-reader` | Kindle Paperwhite |
-| `Mirrorless` | Sony α7R IV, Fujifilm X-T5 |
-| `Console` | Switch OLED |
-| `Handheld` | Steam Deck |
-| `Controller` | DualSense |
-
-`connectivity` is `Wireless` or `Wired`, and is only set for audio in the seed. Adding it elsewhere is allowed; it simply creates a new facet for that department.
-
-Spelling matters: `Over-ear` and `Over-Ear` would become two facets.
-
-## Photography
-
-- Source: one product, centred on a transparent 1200 × 1200 canvas (Cloudinary originals may be larger; delivery is capped at 1400 px wide).
-- The storefront places the cutout directly on the bone canvas. Do not bake in drop shadows, lifestyle backgrounds or white plates; keep the product edge clean and the frame transparent.
-- Alt text describes the product and angle, not the marketing (“AirPods Max in silver, three-quarter view”).
-- Keep the product filling roughly 80% of the frame. The collection and PDP plates add their own padding.
-- Upload originals through the image field; do not paste external URLs. Cloudinary handles format and quality at delivery.
+- Sanity variant options are `{ name, value }[]`; the storefront expects `Record<string, string>`.
+- Sanity prices and stock are numbers; the adapter rounds them and clamps stock at zero.
+- A missing collection slug or product variant drops that document rather than rendering a broken page.
+- Sanity images use `imageUrl(publicId, fallbackUrl)`.
 
 ## Editorial workflow
 
-1. Create or confirm the **collection** first. Set position and eyebrow.
-2. Create the **product** as a draft. Add name, brand, collection, summary, release date.
-3. Upload photographs, write alt text.
-4. Add variants. Copy the ID format exactly. Prices are integers in cents.
-5. Add 3+ specs, 2–4 paragraphs, 2–6 highlights.
-6. Set `filters.type` from the controlled list.
-7. Add the matching row to Supabase inventory (see `supabase/seed.sql` for the shape) before publishing.
-8. Set `status` to `published` and publish.
-9. Spot-check `/collections/{slug}` and `/products/{slug}` on the storefront.
+1. Create or confirm the collection, position, tone, and image.
+2. Create the product and fill the summary, release date, and collection reference.
+3. Add one to six images with useful alt text.
+4. Add variants with permanent IDs, SKUs, kobo prices, and seed stock.
+5. Choose filter facets from the controlled lists.
+6. Add 2–6 highlights, 1–4 paragraphs, and at least three specs for electronics.
+7. Preview the product page; check the price, option labels, and image on mobile.
+8. Set `status` to `published` only when photography, copy, price, and stock are correct.
+9. Mirror new variants into Supabase inventory before publishing. Use the seed as the initial stock, then let Supabase own it.
 
-## Publishing checklist
+## Copy rules
 
-- One image minimum, alt text on every image.
-- One variant minimum, unique IDs, integer prices.
-- Stock row exists in Supabase for every variant.
-- Filter values copied from the controlled list.
-- Three or more specs.
-- Summary is one sentence, not a paragraph.
-- Status is `published` and the document itself is published (not just saved).
-- Revalidation takes up to five minutes on the storefront.
+- Sentence case. No decorative uppercase micro-labels.
+- Write like a careful retailer: specific, useful, calm.
+- Naira prices and inclusive customs language.
+- State what is not included. No invented reviews, ratings, badges, or urgency.
+- Use “bag” for the customer's cart in the storefront UI.
+- Keep product names descriptive rather than model-number soup.
 
-## Cloudinary
+## SEO
 
-The Studio image field:
+`src/app/layout.tsx` sets the default title, description, Open Graph image, and theme colour. Product and collection pages add their own metadata. Published Sanity documents have an optional SEO object; the current code uses the document name/summary and does not yet read per-document SEO fields.
 
-1. Sends `POST /api/cloudinary/sign` with `x-upload-token`.
-2. Receives `{ cloudName, apiKey, timestamp, signature, folder }`.
-3. Uploads the file to `https://api.cloudinary.com/v1_1/{cloudName}/image/upload`.
-4. Stores the returned `public_id`.
+## Connecting the Studio
 
-The token is configured in the field's **Upload settings** and kept in `localStorage`. The API secret never reaches the browser. Rotate `CLOUDINARY_UPLOAD_TOKEN` if an operator with the token leaves.
+See the root README and `studio/.env.example`.
 
-For production, replace the shared token with a serverless endpoint that verifies the editor's Sanity session, and restrict the Cloudinary upload preset to the product folder.
+```bash
+cd studio
+pnpm install
+pnpm dev
+```
+
+The Studio runs on http://localhost:3333. Add `http://localhost:3000` and the production origin to the Sanity project's CORS origins. Storefront variables:
+
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01
+```
+
+A read token is only needed for a private dataset. Never put a write token in the storefront.
+
+## Fallback behaviour
+
+- Sanity not configured: seed catalogue.
+- Sanity returns zero published products: seed catalogue and a server warning.
+- Sanity request fails: seed catalogue and a server warning.
+- A product has no variants: it is dropped by the adapter.
+- An image is missing: the adapter falls back to the local product render.
+- A collection is missing: seed collections fill the navigation and homepage grid.
+
+The fallback is a feature, not an error state. It keeps the storefront usable while content operations are being set up.

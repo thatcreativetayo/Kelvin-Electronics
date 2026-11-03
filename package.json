@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start --port 3000",
     "typecheck": "tsc --noEmit",
-    "seed:check": "node tools/check-seed.mjs",
-    "products:build": "node tools/cloud-products.mjs && node tools/render-cloud-products.mjs"
+    "seed:check": "node tools/check-seed.mjs"
   },
   "dependencies": {
     "@sanity/client": "^8.9.0",

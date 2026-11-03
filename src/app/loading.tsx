@@ -4,7 +4,7 @@ export default function Loading() {
   return (
     <div className="shell flex min-h-[60vh] flex-col items-center justify-center py-20" role="status" aria-live="polite">
       <div className="relative h-16 w-16">
-        <Image src="/brand/logo-mark.png" alt="" fill priority className="object-contain" />
+        <Image src="/brand/logo-mark.png" alt="" fill sizes="64px" priority className="object-contain" />
       </div>
       <p className="type-eyebrow mt-5">Loading Cloud</p>
       <span className="sr-only">Loading the storefront</span>

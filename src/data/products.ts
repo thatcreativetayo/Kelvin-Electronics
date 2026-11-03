@@ -108,7 +108,7 @@ export const products: Product[] = [
       { label: "Installation", value: "Adhesive backing and clips" },
       { label: "Lifespan", value: "25,000 hours" },
     ],
-    images: [img("line-strip", "Line light strip coiled with its inline controller")],
+    images: [img("line-strip-warm", "Line light strip coiled and glowing warm white")],
     variants: [
       { id: "line-light-strip--3m", sku: "CLD-LINE-3", options: { length: "3 m" }, price: 3200000, stock: 10 },
       { id: "line-light-strip--5m", sku: "CLD-LINE-5", options: { length: "5 m" }, price: 4300000, stock: 8 },
@@ -263,6 +263,7 @@ export const products: Product[] = [
     ],
     filters: { type: "Kettle", room: "Kitchen" },
     featured: true,
+    spotlight: true,
     newArrival: false,
     bestseller: false,
     releasedAt: "2026-06-05",

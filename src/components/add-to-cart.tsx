@@ -84,7 +84,7 @@ export function AddToCart({ product }: { product: Product }) {
           onChange={setQuantity}
           label={`Quantity for ${product.name}`}
         />
-        <span className={cn("inline-flex items-center gap-1.5 text-xs", soldOut ? "text-error" : "text-success")}>
+        <span className={cn("inline-flex items-center gap-1.5 text-xs", soldOut ? "text-error" : "text-ink")}>
           <span className={cn("h-1.5 w-1.5 rounded-full", soldOut ? "bg-error" : "bg-success")} aria-hidden />
           {soldOut ? "Out of stock" : "In stock"}
         </span>

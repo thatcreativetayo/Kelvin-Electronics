@@ -7,12 +7,12 @@ import {
   Check,
   Lock,
   Mail,
-  MessageCircle,
   Truck,
 } from "lucide-react";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { ProductCard } from "@/components/product-card";
 import { QuickAdd } from "@/components/quick-add";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { site } from "@/data/site";
 import { isAvailable, priceOf } from "@/lib/catalog";
 import { whatsappSupportHref } from "@/lib/contact";
@@ -38,7 +38,7 @@ const promises = [
     body: "Naira checkout. No card details stored.",
   },
   {
-    icon: MessageCircle,
+    icon: WhatsAppIcon,
     title: "WhatsApp support",
     body: "Real people, Monday to Friday.",
   },
@@ -73,7 +73,7 @@ export default async function HomePage() {
     .sort((a, b) => new Date(b.releasedAt).getTime() - new Date(a.releasedAt).getTime());
 
   const spotlight =
-    featured.find((product) => product.collection === "kitchen") ??
+    featured.find((product) => product.spotlight) ??
     featured.find((product) => !heroProducts.some((item) => item.id === product.id)) ??
     featured[0] ??
     available[0];
@@ -90,20 +90,23 @@ export default async function HomePage() {
               The good stuff, brought home.
             </h1>
             <p className="type-lead mt-6 max-w-[38ch]">
-              Electronics, home essentials and everyday wear. Genuine stock, Naira prices, customs already
-              handled.
+              Electronics, home and everyday wear. Genuine stock, customs handled.
             </p>
-            <div className="mt-8 flex flex-wrap gap-2.5">
-              <Link href="/collections/all" className="btn">
+            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+              <Link href="/collections/all" className="btn w-full sm:w-auto">
                 Shop the catalogue
                 <ArrowRight size={16} strokeWidth={1.9} />
               </Link>
-              <Link href="/how-it-works" className="btn btn-secondary">
+              <Link
+                href="/how-it-works"
+                className="inline-flex items-center gap-1.5 py-1 text-sm font-medium text-muted transition-colors duration-150 hover:text-ink"
+              >
                 How Cloud works
+                <ArrowUpRight size={14} strokeWidth={1.9} />
               </Link>
             </div>
 
-            <dl className="mt-10 grid max-w-[460px] grid-cols-3 gap-5 border-t border-border pt-5">
+            <dl className="mt-10 hidden max-w-[460px] grid-cols-3 gap-5 border-t border-border pt-5 sm:grid">
               <div>
                 <dt className="type-micro text-muted">In stock</dt>
                 <dd className="num mt-1 text-[22px] font-semibold leading-none">{products.length}</dd>
@@ -168,9 +171,9 @@ export default async function HomePage() {
             <Link
               key={collection.slug}
               href={`/collections/${collection.slug}`}
-              className="card card-hover group relative w-[74vw] max-w-[310px] shrink-0 snap-start overflow-hidden sm:w-auto sm:max-w-none"
+              className="card card-hover group relative w-[68vw] max-w-[290px] shrink-0 snap-start overflow-hidden sm:w-auto sm:max-w-none"
             >
-              <div className="relative aspect-[4/5] overflow-hidden bg-bg">
+              <div className="relative aspect-square overflow-hidden bg-bg sm:aspect-[4/5]">
                 <span
                   aria-hidden
                   className="absolute left-1/2 top-[44%] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface"
@@ -224,7 +227,7 @@ export default async function HomePage() {
                 key={product.id}
                 product={product}
                 priority={index < 2}
-                className="w-[76vw] max-w-[300px] shrink-0 snap-start sm:w-auto sm:max-w-none"
+                className="w-[68vw] max-w-[280px] shrink-0 snap-start sm:w-auto sm:max-w-none"
               />
             ))}
           </div>
@@ -263,7 +266,10 @@ export default async function HomePage() {
 
               <div className="mt-7 flex flex-wrap items-center gap-2.5">
                 <QuickAdd product={spotlight} label="Add to cart" size="md" className="w-full sm:w-auto sm:px-5" />
-                <Link href={`/products/${spotlight.slug}`} className="btn btn-secondary">
+                <Link
+                  href={`/products/${spotlight.slug}`}
+                  className="inline-flex w-full items-center justify-center gap-1.5 py-1 text-sm font-medium text-muted transition-colors duration-150 hover:text-ink sm:w-auto"
+                >
                   View details
                   <ArrowRight size={15} strokeWidth={1.9} />
                 </Link>
@@ -340,7 +346,7 @@ export default async function HomePage() {
           </div>
           <div className="flex flex-wrap gap-2.5 md:col-span-5 md:justify-end">
             <a href={whatsappSupportHref()} className="btn">
-              <MessageCircle size={16} strokeWidth={1.9} />
+              <WhatsAppIcon size={16} />
               WhatsApp us
             </a>
             <a href={`mailto:${site.email}`} className="btn btn-secondary">

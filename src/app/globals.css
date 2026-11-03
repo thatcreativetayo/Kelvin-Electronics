@@ -15,7 +15,7 @@
   --color-border: #e3e8ef;
   --color-success: #16a34a;
   --color-error: #dc2626;
-  --color-on-primary: #ffffff;
+  --color-on-primary: #14110d;
 
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
@@ -99,7 +99,7 @@ textarea {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-primary-text);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -377,9 +377,11 @@ textarea {
 }
 
 .field:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-text);
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  box-shadow:
+    0 0 0 2px var(--color-surface),
+    0 0 0 4px var(--color-primary-text);
 }
 
 .tag {

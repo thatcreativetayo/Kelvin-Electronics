@@ -103,7 +103,7 @@ export function CheckoutForm({ configured, requirements, supabaseReady }: Props)
           accepted.
         </p>
         <Link href="/collections/all" className="btn mt-7">
-          Shop the catalog
+          Shop the catalogue
           <ArrowRight size={15} />
         </Link>
       </div>

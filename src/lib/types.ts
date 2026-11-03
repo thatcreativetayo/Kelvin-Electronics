@@ -45,6 +45,8 @@ export type Product = {
   /** Facet values used by collection filtering. */
   filters: Record<string, string>;
   featured: boolean;
+  /** Optional editorial pick for the homepage spotlight. */
+  spotlight?: boolean;
   newArrival: boolean;
   bestseller: boolean;
   releasedAt: string;

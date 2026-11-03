@@ -13,10 +13,10 @@ export const priceBands = [
 
 export const sortOptions: { value: SortKey; label: string }[] = [
   { value: "featured", label: "Featured" },
-  { value: "price-asc", label: "Price, low to high" },
-  { value: "price-desc", label: "Price, high to low" },
+  { value: "price-asc", label: "Lowest price" },
+  { value: "price-desc", label: "Highest price" },
   { value: "newest", label: "Newest" },
-  { value: "name", label: "Alphabetically, A–Z" },
+  { value: "name", label: "Name, A–Z" },
 ];
 
 const facetLabels: Record<string, string> = {

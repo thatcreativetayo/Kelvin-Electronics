@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, Mail, MapPin, MessageCircle, PackageCheck, Truck, Undo2 } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Mail, MapPin, PackageCheck, Truck, Undo2 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { site } from "@/data/site";
 import { whatsappSupportHref } from "@/lib/contact";
 import { formatPrice } from "@/lib/format";
@@ -259,7 +260,7 @@ export default function HowItWorksPage() {
                 Email Cloud
               </a>
               <a href={whatsappSupportHref()} className="btn btn-secondary">
-                <MessageCircle size={15} strokeWidth={1.9} />
+                <WhatsAppIcon size={16} />
                 {site.whatsappNumber ? "Order on WhatsApp" : "WhatsApp support"}
               </a>
             </div>
@@ -286,7 +287,7 @@ export default function HowItWorksPage() {
       </section>
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
-        <p className="text-sm text-muted">Ready to shop? The full catalog is a short one.</p>
+        <p className="text-sm text-muted">Ready to shop? The full catalogue is a short one.</p>
         <Link href="/collections/all" className="btn btn-sm">
           Shop all products
           <ArrowUpRight size={13} strokeWidth={1.9} />

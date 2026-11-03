@@ -79,7 +79,7 @@ export function validateOrder(
 
     const entry = index.get(variantId);
     if (!entry) {
-      return { ok: false, status: 409, message: "One of the products is no longer in the catalog." };
+      return { ok: false, status: 409, message: "One of the products is no longer in the catalogue." };
     }
     if (entry.variant.stock < quantity) {
       return {

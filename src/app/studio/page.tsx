@@ -67,7 +67,7 @@ export default function StudioPage() {
           <p className="text-sm leading-relaxed text-muted">
             Sanity Studio lives in <code className="font-mono text-[12px]">studio/</code> so that schema changes
             deploy without rebuilding the storefront. The storefront reads published content when Sanity is
-            configured, and falls back to the local seed catalog otherwise.
+            configured, and falls back to the local seed catalogue otherwise.
           </p>
         </div>
       </header>
@@ -127,7 +127,7 @@ export default function StudioPage() {
                   <h3 className="text-sm font-medium">{row.label}</h3>
                   <span
                     className={`type-micro inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 ${
-                      row.ready ? "bg-success/10 text-success" : "bg-primary/10 text-primary-text"
+                      row.ready ? "bg-success/10 text-ink" : "bg-primary/10 text-primary-text"
                     }`}
                   >
                     {row.ready ? <Check size={10} strokeWidth={2.5} /> : <Minus size={10} strokeWidth={2.5} />}

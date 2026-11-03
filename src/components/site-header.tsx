@@ -69,13 +69,17 @@ export function SiteHeader({ collections }: { collections: Collection[] }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b transition-[background-color,border-color,box-shadow] duration-200",
-        scrolled
-          ? "border-border bg-surface/88 shadow-soft backdrop-blur-xl"
-          : "border-transparent bg-bg",
+        "sticky top-0 z-40 border-b transition-[border-color,box-shadow] duration-200",
+        scrolled ? "border-border shadow-soft" : "border-transparent bg-bg",
       )}
     >
-      <div className="shell flex h-[var(--header-h)] items-center gap-2">
+      {scrolled && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-surface/88 backdrop-blur-xl"
+        />
+      )}
+      <div className="shell relative z-10 flex h-[var(--header-h)] items-center gap-2">
         <Link href="/" className="flex shrink-0 items-center" aria-label="Cloud home">
           <Image
             src="/brand/logo.svg"
@@ -133,7 +137,10 @@ export function SiteHeader({ collections }: { collections: Collection[] }) {
 
           <button
             type="button"
-            onClick={openCart}
+            onClick={() => {
+              setSearchOpen(false);
+              openCart();
+            }}
             className="relative grid h-10 w-10 place-items-center rounded-full text-ink transition-colors duration-150 hover:bg-surface"
             aria-label={`Open bag, ${count} ${count === 1 ? "item" : "items"}`}
           >
@@ -147,7 +154,10 @@ export function SiteHeader({ collections }: { collections: Collection[] }) {
 
           <button
             type="button"
-            onClick={() => setMenuOpen(true)}
+            onClick={() => {
+              setSearchOpen(false);
+              setMenuOpen(true);
+            }}
             className="grid h-10 w-10 place-items-center rounded-full text-ink transition-colors duration-150 hover:bg-surface lg:hidden"
             aria-label="Open menu"
             aria-expanded={menuOpen}
@@ -159,48 +169,58 @@ export function SiteHeader({ collections }: { collections: Collection[] }) {
       </div>
 
       {searchOpen && (
-        <div
-          id="header-search"
-          className="absolute inset-x-0 top-full border-b border-border bg-surface shadow-soft"
-          style={{ animation: "fadeIn 160ms var(--ease-ui) both" }}
-        >
-          <div className="shell py-4 sm:py-5">
-            <form onSubmit={submit} className="flex items-center gap-3" role="search">
-              <Search size={20} className="shrink-0 text-muted" strokeWidth={1.7} />
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search Cloud"
-                className="h-11 w-full bg-transparent text-[17px] text-ink outline-none placeholder:text-muted sm:text-[19px]"
-                aria-label="Search products"
-              />
-              <button type="submit" className="btn btn-sm shrink-0">
-                Search
-              </button>
-            </form>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3">
-              <span className="type-micro text-muted">Browse</span>
-              {collections.map((collection) => (
+        <>
+          <button
+            type="button"
+            aria-label="Dismiss search"
+            tabIndex={-1}
+            onClick={() => setSearchOpen(false)}
+            className="absolute inset-x-0 top-full h-[100dvh] bg-ink/25"
+            style={{ animation: "fadeIn 160ms var(--ease-ui) both" }}
+          />
+          <div
+            id="header-search"
+            className="absolute inset-x-0 top-full z-10 border-b border-border bg-surface shadow-soft"
+            style={{ animation: "fadeIn 160ms var(--ease-ui) both" }}
+          >
+            <div className="shell py-4 sm:py-5">
+              <form onSubmit={submit} className="flex items-center gap-3" role="search">
+                <Search size={20} className="shrink-0 text-muted" strokeWidth={1.7} />
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search Cloud"
+                  className="h-11 w-full bg-transparent text-[17px] text-ink placeholder:text-muted sm:text-[19px]"
+                  aria-label="Search products"
+                />
+                <button type="submit" className="btn btn-sm shrink-0">
+                  Search
+                </button>
+              </form>
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3">
+                <span className="type-micro text-muted">Browse</span>
+                {collections.map((collection) => (
+                  <Link
+                    key={collection.slug}
+                    href={`/collections/${collection.slug}`}
+                    onClick={() => setSearchOpen(false)}
+                    className="text-xs font-medium text-muted transition-colors duration-150 hover:text-ink"
+                  >
+                    {collection.name}
+                  </Link>
+                ))}
                 <Link
-                  key={collection.slug}
-                  href={`/collections/${collection.slug}`}
+                  href="/collections/all"
                   onClick={() => setSearchOpen(false)}
-                  className="text-xs font-medium text-muted transition-colors duration-150 hover:text-ink"
+                  className="text-xs font-medium text-primary-text"
                 >
-                  {collection.name}
+                  All products
                 </Link>
-              ))}
-              <Link
-                href="/collections/all"
-                onClick={() => setSearchOpen(false)}
-                className="text-xs font-medium text-primary-text"
-              >
-                All products
-              </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {menuOpen && (
@@ -240,7 +260,7 @@ export function SiteHeader({ collections }: { collections: Collection[] }) {
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search products"
-                  className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted"
+                  className="h-11 w-full bg-transparent text-sm placeholder:text-muted"
                   aria-label="Search products"
                 />
                 <button type="submit" className="text-xs font-medium text-primary-text">

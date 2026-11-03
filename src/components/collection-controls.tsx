@@ -177,12 +177,12 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
       </aside>
 
       <div className="min-w-0">
-        <div className="flex items-center justify-between gap-4 border-y border-border py-2.5">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-2 border-y border-border py-2.5 sm:gap-4">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-[12px] font-medium lg:hidden"
+              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-[12px] font-medium lg:hidden"
               aria-expanded={open}
             >
               <SlidersHorizontal size={14} strokeWidth={1.7} />
@@ -193,12 +193,12 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                 </span>
               )}
             </button>
-            <p className="text-xs text-muted">{pluralize(total, "product")}</p>
+            <p className="whitespace-nowrap text-xs text-muted">{pluralize(total, "product")}</p>
           </div>
 
-          <label className="relative flex items-center gap-2 text-[12px]">
+          <label className="relative flex shrink-0 items-center gap-2 text-[12px]">
             <span className="hidden text-muted sm:inline">Sort</span>
-            <span className="relative inline-flex h-9 items-center rounded-lg border border-border bg-surface pl-3 pr-8">
+            <span className="relative inline-flex h-9 w-[145px] items-center rounded-lg border border-border bg-surface pl-3 pr-8 sm:w-auto">
               <select
                 value={selected.sort}
                 onChange={(event) =>
@@ -207,7 +207,7 @@ export function CollectionControls({ basePath, params, facets, brands, total, pr
                     else sp.set("sort", event.target.value);
                   })
                 }
-                className="appearance-none bg-transparent text-[12px] font-medium text-ink outline-none"
+                className="w-full appearance-none truncate bg-transparent text-[11px] font-medium text-ink sm:text-[12px]"
                 aria-label="Sort products"
               >
                 {sortOptions.map((option) => (

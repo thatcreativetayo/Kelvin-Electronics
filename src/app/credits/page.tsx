@@ -20,7 +20,12 @@ const fonts = [
 const photographs = [
   { asset: "Halo smart bulb", source: "Pexels", id: "20713462", href: "https://www.pexels.com/photo/20713462/" },
   { asset: "Arc floor lamp", source: "Vecteezy", id: "50038322", href: "https://www.vecteezy.com/photo/50038322" },
-  { asset: "Line light strip", source: "Pexels", id: "34195903", href: "https://www.pexels.com/photo/34195903/" },
+  {
+    asset: "Line light strip",
+    source: "Vecteezy",
+    id: "67369246",
+    href: "https://www.vecteezy.com/png/67369246-a-coiled-yellow-led-strip-light-emits-warm-glow-perfect-for-decorative-lighting-and-ambiance-enhancement-flexible-design-allows-for-versatile-placement-in-various-settings",
+  },
   { asset: "Plug mini", source: "Vecteezy", id: "59981040", href: "https://www.vecteezy.com/photo/59981040" },
   { asset: "Current 4-way strip", source: "Pexels", id: "39234197", href: "https://www.pexels.com/photo/39234197/" },
   { asset: "Orbit power cube", source: "Pexels", id: "35921904", href: "https://www.pexels.com/photo/35921904/" },
@@ -45,7 +50,7 @@ export default function CreditsPage() {
 
       <header className="card mt-6 max-w-[860px] p-6 sm:p-8">
         <p className="type-eyebrow">Credits</p>
-        <h1 className="type-h1 mt-2">Made for this store.</h1>
+        <h1 className="type-h1 mt-2">Sources and licences.</h1>
         <p className="mt-4 max-w-[62ch] text-sm leading-relaxed text-muted">
           Product photography is licensed from Vecteezy and Pexels. Backgrounds were removed and images were
           colour-corrected for this storefront. Product names and specifications are Cloud catalogue content.

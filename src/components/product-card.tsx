@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { QuickAdd } from "@/components/quick-add";
 import { isAvailable, priceOf } from "@/lib/catalog";
 import { whatsappOrderHref } from "@/lib/contact";
@@ -22,7 +22,7 @@ export function ProductCard({
 
   return (
     <article className={cn("card card-hover group flex flex-col overflow-hidden", className)}>
-      <div className="relative aspect-[4/5] overflow-hidden bg-bg">
+      <div className="relative aspect-square overflow-hidden bg-bg sm:aspect-[4/5]">
         <Link
           href={`/products/${product.slug}`}
           className="absolute inset-0 z-10"
@@ -62,7 +62,7 @@ export function ProductCard({
 
         <div className="mt-auto flex items-center gap-1.5 pt-3">
           {available ? (
-            <QuickAdd product={product} label="Add" className="flex-1" />
+            <QuickAdd product={product} label="Add" tone="secondary" className="flex-1" />
           ) : (
             <span className="btn btn-sm flex-1 cursor-not-allowed bg-border text-muted">Sold out</span>
           )}
@@ -72,7 +72,7 @@ export function ProductCard({
             aria-label={`Order ${product.name} on WhatsApp`}
             title="Order on WhatsApp"
           >
-            <MessageCircle size={15} strokeWidth={1.8} />
+            <WhatsAppIcon size={16} />
           </a>
         </div>
       </div>

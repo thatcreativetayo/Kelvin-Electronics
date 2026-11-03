@@ -70,7 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { collections } = await getCatalog();
 
   return (
-    <html lang="en-NG" className={poppins.variable}>
+    <html lang="en-NG" className={poppins.variable} data-scroll-behavior="smooth">
       <body>
         <a href="#main" className="skip-link">
           Skip to content

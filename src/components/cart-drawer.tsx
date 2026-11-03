@@ -60,10 +60,10 @@ export function CartDrawer() {
           <div className="flex flex-1 flex-col items-start justify-center gap-4 px-6">
             <p className="type-h3 max-w-[16ch]">Nothing in the bag yet.</p>
             <p className="max-w-[34ch] text-sm leading-relaxed text-muted">
-              Start with the catalog. Every product page lists specifications, stock and delivery detail.
+              Start with the catalogue. Every product page lists specifications, stock and delivery detail.
             </p>
             <Link href="/collections/all" onClick={closeCart} className="btn btn-sm">
-              Browse the catalog
+              Browse the catalogue
               <ArrowRight size={14} />
             </Link>
           </div>

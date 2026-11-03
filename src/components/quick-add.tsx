@@ -14,11 +14,13 @@ export function QuickAdd({
   label = "Add to cart",
   className,
   size = "sm",
+  tone = "primary",
 }: {
   product: Product;
   label?: string;
   className?: string;
   size?: "sm" | "md";
+  tone?: "primary" | "secondary";
 }) {
   const { addItem, openCart } = useCart();
   const [open, setOpen] = useState(false);
@@ -30,6 +32,7 @@ export function QuickAdd({
 
   const single = product.variants.length === 1;
   const variant = product.variants.find((item) => item.id === selected) ?? product.variants[0];
+  const triggerClass = cn("btn w-full", size === "sm" && "btn-sm", tone === "secondary" && "btn-secondary", className);
 
   useEffect(() => {
     if (!open) return;
@@ -71,7 +74,7 @@ export function QuickAdd({
         ref={triggerRef}
         type="button"
         onClick={() => add(product.variants[0])}
-        className={cn("btn w-full", size === "sm" && "btn-sm", className)}
+        className={triggerClass}
         aria-label={`Add ${product.name} to cart`}
       >
         <Plus size={14} strokeWidth={2} />
@@ -86,7 +89,7 @@ export function QuickAdd({
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
-        className={cn("btn w-full", size === "sm" && "btn-sm", className)}
+        className={triggerClass}
         aria-label={`Choose options for ${product.name}`}
         aria-expanded={open}
       >

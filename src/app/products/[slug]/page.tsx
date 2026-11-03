@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, ChevronRight, MessageCircle, ShieldCheck, Truck, Undo2 } from "lucide-react";
+import { ArrowUpRight, ChevronRight, ShieldCheck, Truck, Undo2 } from "lucide-react";
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { products } from "@/data/products";
 import { priceOf, relatedProducts } from "@/lib/catalog";
 import { getCatalog } from "@/lib/content";
@@ -94,7 +95,7 @@ export default async function ProductPage({ params }: PageProps) {
               className="btn btn-secondary mt-2.5 w-full"
               aria-label={`Order ${product.name} on WhatsApp`}
             >
-              <MessageCircle size={15} strokeWidth={1.9} />
+              <WhatsAppIcon size={16} />
               Order on WhatsApp
             </a>
 
@@ -185,7 +186,7 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
             <Link
               href={`/collections/${product.collection}`}
-              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted transition-colors duration-150 hover:text-ink"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-medium text-muted transition-colors duration-150 hover:text-ink"
             >
               All {collection?.name.toLowerCase() ?? "products"}
               <ArrowUpRight size={13} strokeWidth={1.9} />

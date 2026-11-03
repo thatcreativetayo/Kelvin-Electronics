@@ -52,7 +52,7 @@ export default async function SearchPage({
           name="q"
           defaultValue={q}
           placeholder="Search products"
-          className="h-10 w-full bg-transparent px-1 text-[16px] outline-none placeholder:text-muted"
+          className="h-10 w-full bg-transparent px-1 text-[16px] placeholder:text-muted"
           aria-label="Search products"
         />
         <button type="submit" className="btn btn-sm shrink-0">
@@ -79,7 +79,7 @@ export default async function SearchPage({
               <p className="type-eyebrow">No matches</p>
               <h2 className="type-h3 mt-3">Nothing matches that search.</h2>
               <p className="mx-auto mt-2 max-w-[46ch] text-sm leading-relaxed text-muted">
-                Try a room, a product type or a material. The full catalog is a short one.
+                Try a room, a product type or a material. The full catalogue is a short one.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2">
                 {collections.map((collection) => (
@@ -110,7 +110,7 @@ export default async function SearchPage({
           <div className="md:col-span-5">
             <p className="text-sm leading-relaxed text-muted">
               Every product we stock sits in one of our categories. If you are not sure where to start, the full
-              catalog is a short one.
+              catalogue is a short one.
             </p>
             <Link
               href="/collections/all"

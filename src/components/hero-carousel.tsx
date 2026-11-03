@@ -19,7 +19,7 @@ export function HeroCarousel({ products }: { products: Product[] }) {
   };
 
   return (
-    <div className="relative flex min-h-[440px] flex-col overflow-hidden bg-surface sm:min-h-[500px] lg:min-h-[620px]">
+    <div className="relative flex min-h-[400px] flex-col overflow-hidden bg-surface sm:min-h-[500px] lg:min-h-[620px]">
       <div className="absolute inset-x-4 top-4 z-20 flex items-center justify-between sm:inset-x-6 sm:top-6">
         <span className="tag">{product.newArrival ? "New in" : "Cloud edit"}</span>
         <div className="flex items-center gap-1.5">

@@ -138,17 +138,20 @@ for (const width of widths) {
     await sleep(400);
 
     // Native lazy-loading only fetches images near the viewport. Walk the page
-    // once so a beyond-viewport capture includes every product render.
+    // once so a beyond-viewport capture includes every product render. Turn off
+    // smooth scrolling first; otherwise the walk never reaches the lower page.
     await send("Runtime.evaluate", {
       expression: `(async () => {
+        document.documentElement.style.scrollBehavior = "auto";
         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         const step = Math.max(innerHeight * 0.8, 400);
         for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-          window.scrollTo(0, y);
-          await wait(90);
+          window.scrollTo({ top: y, behavior: "instant" });
+          await wait(120);
         }
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: "instant" });
         await wait(350);
+        await Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
       })()`,
       awaitPromise: true,
     });
@@ -196,7 +199,11 @@ for (const width of widths) {
       screenWidth: width,
       screenHeight: width < 600 ? 844 : 1000,
     });
-    await sleep(350);
+    await send("Runtime.evaluate", {
+      expression: `Promise.all([...document.images].map((img) => img.decode().catch(() => {})))`,
+      awaitPromise: true,
+    });
+    await sleep(400);
     const screenshot = await send("Page.captureScreenshot", {
       format: "png",
       captureBeyondViewport: false,

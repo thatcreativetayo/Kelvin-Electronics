@@ -100,17 +100,17 @@ const checks = [];
 await send("Page.enable");
 await send("Runtime.enable");
 
-// 1. Add to bag from a PDP.
+// 1. Add to cart from a PDP.
 await navigate("/products/halo-smart-bulb");
-await waitFor("[...document.querySelectorAll('button')].some((button) => button.textContent.includes('Add to bag'))");
+await waitFor("[...document.querySelectorAll('button')].some((button) => button.textContent.includes('Add to cart'))");
 await evaluate(
-  `[...document.querySelectorAll('button')].find((button) => button.textContent.includes('Add to bag')).click()`,
+  `[...document.querySelectorAll('button')].find((button) => button.textContent.includes('Add to cart')).click()`,
 );
 await waitFor("JSON.parse(localStorage.getItem('cloud.cart.v1') || '[]').length === 1");
 const afterAdd = await evaluate(`JSON.parse(localStorage.getItem('cloud.cart.v1'))`);
 checks.push(
   assert(
-    "add to bag stores a line",
+    "add to cart stores a line",
     afterAdd.length === 1 && afterAdd[0].variantId === "halo-smart-bulb--single",
     afterAdd,
   ),

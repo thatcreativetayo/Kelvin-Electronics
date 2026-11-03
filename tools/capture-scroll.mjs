@@ -102,6 +102,15 @@ await send("Page.enable");
 await send("Runtime.enable");
 await mkdir(OUT, { recursive: true });
 
+if (process.env.SEED_CART === "1") {
+  await send("Page.addScriptToEvaluateOnNewDocument", {
+    source: `try { localStorage.setItem("cloud.cart.v1", JSON.stringify([
+      { variantId: "halo-smart-bulb--single", productSlug: "halo-smart-bulb", quantity: 1 },
+      { variantId: "kettle-one--cream", productSlug: "kettle-one", quantity: 1 }
+    ])); } catch {}`,
+  });
+}
+
 await send("Emulation.setDeviceMetricsOverride", {
   width,
   height,
@@ -116,20 +125,37 @@ await send("Page.navigate", { url: new URL(route, BASE).toString() });
 await loaded;
 await sleep(500);
 
-// Walk the page so lazy images load.
+// Walk the page so lazy images load. Disable smooth scrolling so screenshot
+// chunks are not captured mid-animation.
 await send("Runtime.evaluate", {
   expression: `(async () => {
+    document.documentElement.style.scrollBehavior = "auto";
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const step = Math.max(innerHeight * 0.8, 400);
     for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-      window.scrollTo(0, y);
+      window.scrollTo({ top: y, behavior: "instant" });
       await wait(80);
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "instant" });
     await wait(300);
   })()`,
   awaitPromise: true,
 });
+
+// Let lazy images finish decoding before capturing.
+await send("Runtime.evaluate", {
+  expression: `Promise.all(Array.from(document.images).map((image) => image.decode().catch(() => {})))`,
+  awaitPromise: true,
+});
+await sleep(300);
+
+const clickSelector = process.env.CLICK_SELECTOR;
+if (clickSelector) {
+  await send("Runtime.evaluate", {
+    expression: `document.querySelector(${JSON.stringify(clickSelector)})?.click()`,
+  });
+  await sleep(500);
+}
 
 const { result } = await send("Runtime.evaluate", {
   expression: `({ scrollHeight: document.documentElement.scrollHeight, scrollWidth: document.documentElement.scrollWidth, innerWidth, clientWidth: document.documentElement.clientWidth })`,
@@ -140,9 +166,9 @@ const slug = route === "/" ? "home" : route.replace(/^\//, "").replace(/[/?=&]+/
 
 for (let index = 0, y = 0; index < maxChunks && y < total; index += 1, y += height) {
   await send("Runtime.evaluate", {
-    expression: `window.scrollTo(0, ${y});`,
+    expression: `window.scrollTo({ top: ${y}, behavior: "instant" });`,
   });
-  await sleep(250);
+  await sleep(300);
   const shot = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
   const file = path.join(OUT, `${slug}-${width}-scroll-${index}.png`);
   await writeFile(file, Buffer.from(shot.data, "base64"));
@@ -154,3 +180,4 @@ chrome.kill();
 await sleep(400);
 await rm(profile, { recursive: true, force: true }).catch(() => {});
 console.log(`${route} ${width}x${height} total=${total} width=${result.value.scrollWidth}/${result.value.clientWidth}`);
+process.exit(0);

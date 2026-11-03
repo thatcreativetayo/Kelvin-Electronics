@@ -1,4 +1,4 @@
-# cloud.
+# Cloud
 
 **The good stuff, brought home.**
 
@@ -13,7 +13,7 @@ This repository is the Cloud storefront: a Next.js 16 App Router application wit
 | Storefront | Next.js 16.4.2, React 19.3.1, TypeScript 5.9.3 |
 | Styling | Tailwind CSS 4.3.3 with semantic tokens in `src/app/globals.css` |
 | Package manager | pnpm 11.8.0 |
-| Type | Self-hosted DM Sans (commerce) and Instrument Serif (display) |
+| Type | Self-hosted Poppins: 400 body, 500 interface, 600 headings |
 | Catalogue | 12 products, 27 variants: Lighting, Power, Kitchen, Wear |
 | Currency | NGN, integer kobo everywhere in code and data |
 | Delivery | Free over ₦150,000, otherwise ₦4,500; Nigeria only |
@@ -39,7 +39,6 @@ pnpm typecheck      # TypeScript, storefront
 pnpm build          # production build
 pnpm start          # serve the production build on :3000
 pnpm seed:check     # compare supabase/seed.sql with src/data/products.ts
-pnpm products:build # regenerate the original product PNG renders
 ```
 
 The Sanity Studio is a separate package:
@@ -54,14 +53,14 @@ pnpm build
 
 ## What is in the storefront
 
-- A warm editorial homepage with a prominent product search, colour-blocked collections, the Cloud Home edit, the Cloud Wear capsule, and the import promise.
-- Collection pages for `/collections/all`, `lighting`, `power`, `kitchen`, and `wear`, including price bands, type, room or fit filters, and sorting.
+- A quiet editorial homepage: split hero with a manual product carousel, exact trust strip, data-driven category rail, New In rail, product spotlight, full-bleed promise band and help band.
+- Data-driven collection pages for every collection in the catalogue, including `/collections/all`, with price bands, type, room or fit filters, and sorting.
 - Product pages with variant selection, quantity, stock state, specifications, delivery, returns, and a one-year electronics warranty.
 - A search page at `/search?q=...` over the current catalogue.
 - A local-first bag, cart drawer, and cart page. Adding to the bag never calls a server.
 - A checkout form that accepts Nigerian delivery addresses only. Totals are recalculated on the server from the catalogue; the client cannot choose a price.
 - `/how-it-works` for sourcing, delivery, returns, warranty, and the honest-commerce boundaries.
-- `/credits` for the original Cloud product renders and self-hosted typeface licences.
+- `/credits` for licensed product photography and the self-hosted Poppins licence.
 - `/studio` as a read-only integration status board. The editable Sanity Studio lives in `studio/`.
 
 ## Prices, stock, and delivery
@@ -103,11 +102,11 @@ Copy `.env.example` to `.env.local`. Studio variables live in `studio/.env.local
 
 Sanity currently owns **products and collections**. The homepage composition, navigation, and editorial copy are code-driven in this build; their schemas exist in `studio/` for the next content pass but are not yet read by the storefront. The header navigation also comes from the seed collection list.
 
-## Original product imagery
+## Product photography
 
-The 12 product renders are original Cloud illustrations, not manufacturer photography. They are generated from `tools/cloud-products.mjs` and rendered with `tools/render-cloud-products.mjs`. The PNG and SVG files are committed so the storefront does not need the generation tools at runtime.
+The product images are licensed stock photographs from Vecteezy and Pexels, with backgrounds removed and colour corrected for this storefront. They are illustrative: finish and small details on the unit that ships may differ. Every source and licence link is listed on `/credits`. Replace an image by putting a new PNG in `public/products/` and updating the product's `images` entry in `src/data/products.ts`.
 
-The fonts are self-hosted under the SIL Open Font License 1.1. Licence copies are in `public/licenses/` and `src/app/fonts/`.
+Poppins is self-hosted under the SIL Open Font License 1.1. The licence is served from `public/licenses/Poppins-OFL.txt`.
 
 ## Quality checks
 
@@ -118,7 +117,7 @@ pnpm seed:check
 node tools/smoke.mjs
 ```
 
-`tools/smoke.mjs` drives Chrome through the PDP → bag → cart → checkout boundary and asserts Naira totals, the disabled payment state, the 501 API response, and rejection of non-Nigerian addresses. It expects the dev server on `http://localhost:3000`.
+`tools/smoke.mjs` drives Chrome through the PDP → bag → cart → checkout boundary and asserts Naira totals, the disabled payment state, the 501 API response, and rejection of non-Nigerian addresses. It expects the storefront on `http://localhost:3000`; use `pnpm start` for a production build.
 
 For full-page screenshots at 1440 px and 390 px:
 
@@ -126,12 +125,19 @@ For full-page screenshots at 1440 px and 390 px:
 node tools/capture-storefront.mjs / /collections/lighting /products/halo-smart-bulb /cart /checkout
 ```
 
-Screenshots are written to `%TEMP%\cloud-shots` on Windows, or `SHOT_DIR` if set. The script also reports horizontal overflow.
+For fixed-viewport chunks, including the 360 px check:
+
+```bash
+node tools/capture-scroll.mjs / 360 800
+node tools/capture-scroll.mjs /collections/all 360 800
+```
+
+Screenshots are written to `%TEMP%\cloud-shots` on Windows, or `SHOT_DIR` if set. Both scripts report horizontal overflow.
 
 ## Before launch
 
-- Replace the placeholder contact details in `src/data/site.ts`: `hello@cloud.ng` and `+234 700 000 0000` are not live support channels.
-- Set the final domain in `NEXT_PUBLIC_SITE_URL` and update metadata/share assets.
+- Confirm the contact details and social handles in `src/data/site.ts`. The current email, Instagram and TikTok values are placeholders, and WhatsApp support stays inactive until `NEXT_PUBLIC_WHATSAPP_NUMBER` is set.
+- Set the final domain in `NEXT_PUBLIC_SITE_URL` and review the brand share asset.
 - Create the Sanity project, add CORS origins, and seed or migrate content.
 - Apply the Supabase migrations, run `supabase/seed.sql`, and verify the `create_order` function in a real Postgres instance. The SQL in this repository has not been executed in this environment because Docker, the Supabase CLI, and `psql` are unavailable.
 - Implement and test the payment adapter before accepting orders.

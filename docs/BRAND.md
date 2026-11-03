@@ -2,7 +2,7 @@
 
 ## The idea
 
-**Cloud is a trusted importer, not a boutique.** We choose useful home electronics abroad, clear them through customs, and deliver them across Nigeria at a Naira price that already includes the import.
+**Cloud is a trusted Nigerian importer, not a marketplace.** We choose a short edit of useful electronics, home goods and everyday wear, clear customs, and deliver across Nigeria at a Naira price that already includes the import.
 
 The line is:
 
@@ -12,9 +12,9 @@ Supporting line:
 
 > **Sourced abroad. Delivered across Nigeria.**
 
-The role model is a large, well-run department store: confident assortment, clear departments, useful service, and plain prices. The storefront should feel warm and edited, but never fragile, exclusive, or tech-bro.
+The storefront should feel like a quiet, well-run specialist shop: confident assortment, generous space, clear product photography, and plain service. Premium, not precious. Useful, not theatrical.
 
-Cloud Home leads with lighting, power, and kitchen. Cloud Wear is the first clothing capsule. The brand should be able to grow into more home and apparel categories without changing its voice.
+Cloud Home currently leads with lighting, power and kitchen. Cloud Wear is the first clothing capsule. Collections are data-driven, so later categories such as food can be added without a category-specific layout or a new accent colour.
 
 ## What trust looks like here
 
@@ -22,93 +22,102 @@ Trust is built through specifics, not badges:
 
 - Naira prices with customs and duties included.
 - Stock states that reflect inventory rather than theatre.
-- Delivery windows, returns, and the one-year electronics warranty stated plainly.
+- Delivery windows, returns and the one-year electronics warranty stated plainly.
 - A checkout that says when it is not connected instead of pretending a payment succeeded.
-- No invented reviews, ratings, press logos, discounts, countdowns, or “only X left” pressure.
-- Contact details that are easy to find.
+- No invented reviews, ratings, press logos, discounts, countdowns or "only X left" pressure.
+- Contact details and WhatsApp support that are easy to find.
 
-The product images in this build are original Cloud illustrations. They should not be described as photographs of the exact shipping unit.
+Product photography is licensed stock, cut out and colour-corrected for this storefront. It is illustrative: finish and small details on the unit that ships may differ. The source list lives on `/credits`.
 
-## Wordmark
+## Wordmark and brand assets
 
-- Lowercase **cloud** plus a cobalt full stop: `cloud.`
-- Set in the display serif at normal weight.
-- The dot is a brand mark, not punctuation in a sentence; keep it in the same cobalt as the accent.
-- Do not uppercase, letterspace, outline, or add a cloud icon.
-- Give the mark clear space roughly equal to the dot's diameter.
-- On dark grounds, use paper for the letters and a light blue or paper dot.
+- `public/brand/logo.svg` is the orange Cloud wordmark, including the fluffy cloud mark. Use it on light surfaces.
+- `public/logo.svg` is the editable source for the wordmark.
+- `public/brand/logo-mark.png` is the transparent cloud mark used by the loading state.
+- `public/brand/favicon-32.png`, `icon-192.png`, `icon-512.png` and `apple-touch-icon.png` are the app icons.
+- `public/brand/og.png` is the 1200 × 630 share image.
+- Keep clear space around the wordmark of at least the height of the mark. Do not redraw, stretch, outline or recolour it.
+- On dark surfaces use the wordmark as supplied, or the cloud mark in paper/white.
 
 ## Palette
 
-All tokens live in `src/app/globals.css`.
+Every colour token lives in `src/app/globals.css`. Do not hardcode colours in components.
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| `canvas` | `#f6f3eb` | Page ground; warm, paper-like |
-| `paper` | `#fffdf8` | Cards, summary panels, form surfaces |
-| `ink` | `#101214` | Primary text and dark sections |
-| `ink-2` | `#3d4147` | Body copy |
-| `muted` | `#6e7176` | Secondary labels and metadata |
-| `line` | `#ded8cc` | Hairline borders on canvas |
-| `line-strong` | `#c4bdb0` | Emphasised borders and controls |
-| `accent` (cobalt) | `#1f3bff` | Primary actions, links, one dot, focus |
-| `accent-soft` | `#e9edff` | Quiet accent washes |
-| `success` | `#286447` | In-stock and confirmation text |
-| `sky` | `#dbe7f6` | Lighting, cool product stages |
-| `butter` | `#f0e3b5` | Kitchen and warm product stages |
-| `clay` | `#f0dbcd` | Power and warmer editorial blocks |
-| `sage` | `#dde6d6` | Wear and calm editorial blocks |
+| `--primary` | `#DC7B26` | Primary actions and the single brand accent |
+| `--primary-hover` | `#C26A1B` | Primary hover and pressed state |
+| `--primary-text` | `#B8601A` | Orange text that needs stronger contrast on light surfaces |
+| `--bg` | `#F5F8FC` | Page ground and quiet product stages |
+| `--surface` | `#FFFFFF` | Cards, fields, header and panels |
+| `--ink` | `#14110D` | Primary text, dark promise band |
+| `--muted` | `#6B7280` | Secondary copy, labels, metadata |
+| `--border` | `#E3E8EF` | Hairline borders, dividers, disabled controls |
+| `--success` | `#16A34A` | In-stock dots and confirmation marks |
+| `--error` | `#DC2626` | Validation errors and destructive actions |
 
 Rules:
 
-- Cobalt is the only saturated accent. Do not introduce a second bright brand colour.
-- Use flat colour blocks. No gradients, no mesh backgrounds, no glow.
-- Border radius is restrained: small controls, medium panels, large category blocks. Avoid pill-shaped everything.
-- Shadows are for depth on overlays only (cart drawer), not for making every card float.
-- Never use glassmorphism, translucent blur panels, or backdrop filters.
+- Orange is the only brand accent. Do not introduce category colours or a second bright colour.
+- Most of the page is off-white, white and ink. Orange is for actions and small moments of emphasis, not large decorative fields.
+- Primary buttons use ink text on orange, not white. The pair is deliberately high contrast (about 6.2:1); do not switch it back to white.
+- The focus ring uses the darker `--primary-text` orange so it remains visible on the off-white ground.
+- Cards use a white surface, a 1px border, `rounded-2xl`, and the soft shadow token. Avoid floating cards and heavy drop shadows.
+- The header becomes translucent white with a backdrop blur only after scrolling. Do not use blur elsewhere.
+- No gradients on surfaces. The pale circular product stage is a flat `--bg` fill.
 
 ## Typography
 
-Two self-hosted families:
+**Poppins only**, self-hosted from `src/app/fonts/` through `next/font/local`:
 
-- **Instrument Serif** — display, hierarchy, and editorial statements. Regular and italic.
-- **DM Sans** — product data, body copy, controls, navigation, and forms. Variable weight.
+- **600** — headings and product names at display sizes.
+- **500** — buttons, navigation, labels and UI.
+- **400** — body copy and supporting text.
 
 Rules:
 
-- Sentence case everywhere. No decorative uppercase micro-labels.
-- Use italic serif for a warm editorial aside, not for every heading.
-- Display headings can be large and tightly set; body copy stays calm and readable.
-- Use tabular numerals for prices, counts, stock, and order totals.
-- Do not use letterspaced all-caps for “new”, “category”, or “shop now”.
-- Do not set long paragraphs in the serif.
-
-Type roles are class-based in `globals.css`: `type-display`, `type-h1`, `type-h2`, `type-h3`, `type-lead`, `type-body`, `type-small`, `type-micro`, and `type-eyebrow`.
+- Set prices, counts, stock and totals in tabular numerals.
+- Use sentence case. Uppercase micro-labels are allowed only as short eyebrows with generous tracking.
+- Keep paragraphs short. Do not set long copy in a display size.
+- Use the narrow Naira symbol (`₦`) from the font. The formatter in `src/lib/format.ts` is the only way to render prices.
+- The type roles are defined in `globals.css`: `type-hero`, `type-h1`, `type-h2`, `type-h3`, `type-lead`, `type-body`, `type-small`, `type-micro`, and `type-eyebrow`.
+- Self-hosted files and `display: swap` keep the layout stable. Do not add a second typeface.
 
 ## Layout
 
-- A wide shell with generous margins and a max content width.
-- Strong horizontal rules separate departments and editorial sections.
-- Homepage category blocks use a deliberate asymmetric grid, not a uniform card wall.
-- Product pages pair a large staged image with a narrow, practical purchase column.
-- The bag and checkout use paper panels against canvas; summaries are bordered, not floating.
-- Mobile layouts stack in reading order. Controls remain at least 44 px tall.
-- Sticky elements are limited to the header and contextual summaries. They are opaque.
+- Maximum shell width is `1320px`; gutters are `20px` on mobile, `32px` at `md`, and `48px` at `xl`.
+- The header is `64px` tall on mobile and `72px` from `md`, sticky, and blurred on scroll.
+- Off-white page; white cards; generous whitespace. Rounded corners are restrained (largely `rounded-2xl` and `rounded-xl`).
+- The homepage runs: split hero with a manual product carousel, exact trust strip, data-driven category rail, New In rail, single product spotlight, full-bleed ink promise band, help band, footer.
+- Mobile category and product rails are horizontal snap rails. They are not squeezed two-column grids.
+- The collection grid uses two columns on mobile and expands to four on large screens. Filters are a sidebar on desktop and a sheet on mobile.
+- Product pages pair one large circular stage with a sticky purchase panel on desktop; the panel follows the content on mobile.
+- Buttons are 48px high; compact controls are 38px. Focus rings are visible on every interactive element.
 
 ## Product presentation
 
-- Products sit on flat colour stages taken from the collection tone.
-- Keep the object large and centred with breathing room.
-- Illustrations are clean, warm, and slightly idealised; they should read as one family.
-- Avoid glossy 3D, neon lighting, busy props, or stock-photo lifestyle scenes.
-- The same object should not appear in unrelated categories.
+- All products use the same treatment: a large, background-removed cut-out on a pale circular stage over the off-white page.
+- Do not design per category. Lighting, power, kitchen, wear and any future collection use the same stage, card and typography rules.
+- Keep the product large and centred with breathing room. Do not add props, lifestyle scenes or a different background colour per collection.
+- Product cards show image, brand, name, Naira price, an Add control and a WhatsApp order action. The WhatsApp control is icon-only on cards and labelled on the product page.
+- Use descriptive alt text. Never use the product name alone as the alt if it does not describe the image.
 
 ## Motion
 
-- Short, functional transitions: 150–300 ms for controls; 500–700 ms for a gentle image scale.
-- Ease out; no bounce.
-- Respect `prefers-reduced-motion`.
-- No parallax, autoplay carousels, animated counters, or attention-seeking loops.
+- 150–200ms for state changes, hovers and controls.
+- Use `var(--ease-ui)` and ease-out curves. No bounce.
+- The drawer and filter sheet may use 180–220ms entrance animations.
+- Respect `prefers-reduced-motion`. No autoplay carousels, parallax, animated counters or attention-seeking loops.
+- The hero carousel is manual: arrows, dots, and product links only.
+
+## Accessibility
+
+- Contrast is checked for ink, muted and orange text on their intended surfaces.
+- Every interactive element has a visible focus ring. Do not remove focus styles without replacing them.
+- Images have useful alt text; decorative cloud shapes have empty alt text.
+- State is not carried by colour alone. Stock, errors and selected options also use text or shape.
+- Touch targets are generous; primary actions are 48px high. Compact card actions remain at least 38px with a wide hit area.
+- `prefers-reduced-motion` disables non-essential animation.
 
 ## Voice
 
@@ -118,63 +127,19 @@ Write like a person who has used the thing and is telling you the useful part.
 
 - Lead with the everyday problem.
 - Give the one detail that changes the decision.
-- Name what is included: customs, delivery, warranty, returns.
 - Use short sentences and concrete nouns.
-- Say “bag”, not “cart”, in customer-facing copy.
-- Use Naira and Nigerian delivery language naturally.
+- Say "catalogue", "bag", "customs" and "delivery" plainly.
 
-**Avoid**
+**Don't**
 
-- “Game-changing”, “revolutionary”, “must-have”, “unlock”, “elevate”.
-- Luxury scarcity (“limited drop”, “only 3 left”, “selling fast”).
-- Fake urgency, fake reviews, fake discounts, or unexplained strikethrough prices.
-- Corporate filler (“we are committed to providing exceptional experiences”).
-- Emoji, exclamation marks, and slang that will age badly.
-- Uppercase labels used as decoration.
+- Use "revolutionary", "seamless", "elevate", "curated" as filler, or emojis.
+- Invent urgency, scarcity, reviews or social proof.
+- Use uppercase shouting or exclamation marks.
+- Describe a product as the exact shipping unit when the image is illustrative.
 
-### Examples
+## Avoid
 
-Good:
-
-- “Warm light, dimmable from your phone. Fits a standard E27 socket.”
-- “The price at checkout is the price you pay. Customs and duties are already in it.”
-- “Lagos: 1–3 working days. Elsewhere in Nigeria: 2–5.”
-- “No card is collected in this build.”
-
-Not Cloud:
-
-- “THE FUTURE OF LIGHTING IS HERE.”
-- “Only 2 left — grab yours before it's gone!”
-- “Trusted by 10,000+ happy customers.”
-- “Seamless, premium, curated experiences for the modern home.”
-
-## Commerce language
-
-- Free delivery threshold: **₦150,000**.
-- Standard delivery: **₦4,500**.
-- Delivery: Lagos 1–3 working days; nationwide 2–5.
-- Returns: 14 days.
-- Electronics warranty: one year.
-- Checkout accepts Nigerian delivery addresses only.
-- Unconfigured checkout: **Payment not connected**. Never “payment successful” unless a verified provider event says so.
-
-## Accessibility
-
-- Body text should meet WCAG AA contrast on canvas and paper.
-- Focus is a visible cobalt outline; do not remove it without a replacement.
-- Interactive controls have accessible names.
-- Colour is not the only signal for stock, errors, or selected options.
-- Images have descriptive alt text; decorative marks are hidden from assistive technology.
-- Motion respects reduced-motion preferences.
-- Keyboard order follows visual order; the cart drawer and mobile menu manage focus and Escape.
-
-## Brand boundaries
-
-The interface can be warm, literary, and spacious. It cannot be:
-
-- A luxury fashion boutique with unreadable type and hidden prices.
-- A generic dropshipping store with countdowns and fake reviews.
-- A startup dashboard with gradients, glass, and floating metric cards.
-- A marketplace that hides who is responsible for the import.
-
-The test for any new section: **does it make the import, the price, or the delivery clearer?** If not, it is probably decoration.
+- Category-specific pastel blocks or a different visual system per collection.
+- Generic marketplace density, badge walls, gradients, glass panels outside the scrolled header, or neon.
+- Floating cards on every surface, oversized shadows, or rounded pills everywhere.
+- A second sans-serif or a decorative serif.

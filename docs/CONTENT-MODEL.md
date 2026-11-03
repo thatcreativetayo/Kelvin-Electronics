@@ -12,7 +12,7 @@ The storefront currently reads **products and collections** from Sanity. Other s
 | Schema | Read by storefront | Purpose |
 | --- | --- | --- |
 | `product` | Yes, when `status == "published"` | Catalogue details, variants, media, filters, SEO |
-| `collection` | Yes | Lighting, Power, Kitchen, Wear; tone and order |
+| `collection` | Yes | Lighting, Power, Kitchen, Wear; image and order |
 | `homepage` | No | Prepared homepage section stack |
 | `navigation` | No | Prepared announcement, header, footer links |
 | `settings` | No | Prepared brand and contact settings |
@@ -35,7 +35,7 @@ A product belongs to exactly one collection.
 | `status` | `draft`, `published`, or `archived`; only published products reach the storefront |
 | `summary` | Required, max 180; one sentence for cards and search |
 | `releasedAt` | Required; controls “new in” ordering |
-| `flags` | `featured`, `newArrival`, `bestseller` |
+| `flags` | `featured`, `newArrival`, `bestseller`; seed data also supports an optional `spotlight` editorial pick |
 | `images` | One to six Cloudinary images; alt text required |
 | `variants` | One or more variants; IDs unique within the product |
 | `filters` | Controlled `type`, `room`, and `fit` facets |
@@ -81,8 +81,8 @@ Use the exact spelling. A new spelling creates a new, near-empty facet. Filterin
 - Upload through the Cloudinary image field.
 - Each image has a public ID or fallback URL, alt text, and optional dimensions.
 - If a product has no usable image, the adapter falls back to `/products/{slug}.png`.
-- The current 12 products have original Cloud renders under `public/products/`. They are illustrated brand objects, not photographs of the exact shipping units.
-- Product renders are regenerated with `pnpm products:build`. The SVG source and PNG render are both committed.
+- The current 12 products use licensed stock photographs under `public/products/`, with backgrounds removed and colour corrected. They are illustrative, not photographs of the exact shipping units. Sources are listed on `/credits`.
+- To replace an image, add a square transparent PNG to `public/products/` and update the product's `images` entry. Keep the same aspect ratio and pale-stage treatment.
 
 ## Collection
 
@@ -94,7 +94,6 @@ Use the exact spelling. A new spelling creates a new, near-empty facet. Filterin
 | `tagline` | Required, max 60 |
 | `description` | Required, max 240 |
 | `image` | Required Cloudinary image or fallback |
-| `tone` | Sky, Butter, Clay, or Sage |
 | `position` | Integer; sorts collections for the homepage grid |
 | `showInNavigation` | Prepared for a future navigation adapter; not read today |
 
@@ -125,7 +124,7 @@ Mappings to watch:
 
 ## Editorial workflow
 
-1. Create or confirm the collection, position, tone, and image.
+1. Create or confirm the collection, position and image.
 2. Create the product and fill the summary, release date, and collection reference.
 3. Add one to six images with useful alt text.
 4. Add variants with permanent IDs, SKUs, kobo prices, and seed stock.
@@ -137,7 +136,7 @@ Mappings to watch:
 
 ## Copy rules
 
-- Sentence case. No decorative uppercase micro-labels.
+- Sentence case. Uppercase is limited to short section eyebrows; never set long labels or sentences in caps.
 - Write like a careful retailer: specific, useful, calm.
 - Naira prices and inclusive customs language.
 - State what is not included. No invented reviews, ratings, badges, or urgency.
@@ -174,7 +173,7 @@ A read token is only needed for a private dataset. Never put a write token in th
 - Sanity returns zero published products: seed catalogue and a server warning.
 - Sanity request fails: seed catalogue and a server warning.
 - A product has no variants: it is dropped by the adapter.
-- An image is missing: the adapter falls back to the local product render.
+- An image is missing: the adapter falls back to the local product cut-out.
 - A collection is missing: seed collections fill the navigation and homepage grid.
 
 The fallback is a feature, not an error state. It keeps the storefront usable while content operations are being set up.

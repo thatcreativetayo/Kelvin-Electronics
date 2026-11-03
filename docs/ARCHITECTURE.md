@@ -20,8 +20,8 @@ Content plane                         Commerce plane
   or src/data seed catalogue
                                         Payment provider: not implemented
 Media plane
-  Cloudinary URLs, or committed local
-  product renders under /public/products
+  Cloudinary URLs, or licensed local
+  product cut-outs under /public/products
 ```
 
 ## Runtime boundaries
@@ -56,14 +56,14 @@ The service-role Supabase client is created only in route handlers. It is never 
 
 | Route | Rendering | Purpose |
 | --- | --- | --- |
-| `/` | Static, revalidated | Editorial homepage, category grid, new-in, Cloud Home edit, Cloud Wear, import story |
+| `/` | Static, revalidated | Editorial homepage: split hero, trust strip, category rail, New In, spotlight, promise band, help band |
 | `/collections/[slug]` | Dynamic | Filtered and sorted catalogue; `lighting`, `power`, `kitchen`, `wear`, `all` |
 | `/products/[slug]` | SSG per seed product | Product details, variant picker, specification table, related products |
 | `/search` | Dynamic | Local catalogue search with query parameters |
 | `/cart` | Static shell | Local bag, quantities, delivery estimate, checkout link |
 | `/checkout` | Static shell | Nigerian delivery form and order review |
 | `/how-it-works` | Static | Sourcing, delivery, returns, warranty, honest-commerce commitments |
-| `/credits` | Static | Product illustration and typeface credits |
+| `/credits` | Static | Product photography and typeface credits |
 | `/studio` | Static status board | Reads the process environment and reports integration readiness |
 | `/api/checkout` | Node route handler | Server-side validation and order boundary |
 | `/api/stock` | Node route handler | Current stock adapter |
@@ -80,7 +80,7 @@ Product {
   id, slug, name, brand, collection,
   summary, description[], highlights[], specs[],
   images[], variants[], filters,
-  featured, newArrival, bestseller, releasedAt
+  featured, spotlight?, newArrival, bestseller, releasedAt
 }
 
 Variant {
@@ -102,15 +102,16 @@ Current catalogue: 12 products and 27 variants across four collections.
 
 ## Styling and brand
 
-Brand tokens and the small type scale live in `src/app/globals.css`.
+Brand tokens, type roles and component primitives live in `src/app/globals.css`.
 
-- Canvas `#f6f3eb`, paper `#fffdf8`, ink `#101214`.
-- Cobalt `#1f3bff` is the single accent.
-- Colour blocks: sky `#dbe7f6`, butter `#f0e3b5`, clay `#f0dbcd`, sage `#dde6d6`.
-- Instrument Serif for display and editorial statements; DM Sans for commerce and controls.
-- Sentence case, no uppercase micro-labels, no gradients, no glass surfaces, no invented social proof.
+- `--primary: #DC7B26`, `--primary-hover: #C26A1B`, `--primary-text: #B8601A`.
+- `--bg: #F5F8FC`, `--surface: #FFFFFF`, `--ink: #14110D`, `--muted: #6B7280`, `--border: #E3E8EF`, `--success: #16A34A`, `--error: #DC2626`.
+- Poppins only, self-hosted: 400 body, 500 interface, 600 headings.
+- Off-white page, white cards with one border, `rounded-2xl` and the soft shadow token. Orange is an accent for actions, not a large decorative field.
+- Product cut-outs sit on pale circular stages. Categories share one treatment; there is no category-specific visual system.
+- The header is sticky and blurs only after scrolling. Motion is 150–200ms and respects reduced motion.
 
-The design direction is a warm department store rather than a boutique electronics brand. Large serif statements, strong category blocks, and plain-spoken product copy carry the identity.
+The design direction is a quiet, premium catalogue: large product photography, editorial type, restrained navigation, and plain-spoken product copy.
 
 ## Failure modes
 
@@ -129,7 +130,7 @@ The design direction is a warm department store rather than a boutique electroni
 | --- | --- |
 | `src/app/page.tsx` | Homepage composition and editorial merchandising |
 | `src/data/products.ts` | Seed catalogue, prices, stock, facets, copy |
-| `src/data/collections.ts` | Collections, tones, images, descriptions |
+| `src/data/collections.ts` | Seed collections, images and descriptions |
 | `src/data/site.ts` | Placeholder legal and contact details |
 | `src/lib/content.ts` | Sanity adapter, seed fallback, image mapping |
 | `src/lib/catalog.ts` | Filtering, sorting, facets, related products |
@@ -140,11 +141,11 @@ The design direction is a warm department store rather than a boutique electroni
 | `src/app/globals.css` | Brand tokens, type scale, controls, motion |
 | `supabase/migrations/` | Commerce schema and `create_order` |
 | `studio/` | Sanity Studio schemas and structure |
-| `tools/` | Seed check, browser smoke test, screenshots, product render pipeline |
+| `tools/` | Seed check, browser smoke test, screenshot capture |
 
 ## Current boundaries
 
-- Sanity owns products and collections only. Homepage composition, navigation, and footer content are code-driven in this build even though schemas exist for them.
-- The header navigation reads the seed collection list, not Sanity.
+- Sanity owns products and collections only. Homepage composition and editorial copy are code-driven in this build even though schemas exist for them.
+- The header navigation and homepage category rail read collections from `getCatalog()`, so they follow Sanity when it is configured and the seed catalogue otherwise.
 - Payment capture is not implemented. The order boundary is real; the charge is not.
 - The Supabase SQL has not been executed in this environment. It needs a real Postgres instance or the Supabase CLI before launch.
